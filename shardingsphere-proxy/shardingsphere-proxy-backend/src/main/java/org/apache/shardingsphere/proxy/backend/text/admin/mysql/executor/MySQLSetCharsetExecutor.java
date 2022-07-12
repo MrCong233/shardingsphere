@@ -21,12 +21,13 @@ import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.db.protocol.CommonConstants;
 import org.apache.shardingsphere.db.protocol.mysql.constant.MySQLServerInfo;
 import org.apache.shardingsphere.proxy.backend.session.ConnectionSession;
-import org.apache.shardingsphere.proxy.backend.text.admin.executor.DatabaseSetCharsetExecutor;
+import org.apache.shardingsphere.proxy.backend.text.admin.executor.DatabaseAdminExecutor;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dal.VariableAssignSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.dal.SetStatement;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.sql.SQLException;
 import java.util.Locale;
 
@@ -34,23 +35,19 @@ import java.util.Locale;
  * Set charset executor of MySQL.
  */
 @RequiredArgsConstructor
-public final class MySQLSetCharsetExecutor implements DatabaseSetCharsetExecutor {
+public final class MySQLSetCharsetExecutor implements DatabaseAdminExecutor {
     
     private final SetStatement setStatement;
-    
-    private String currentValue;
     
     @Override
     public void execute(final ConnectionSession connectionSession) throws SQLException {
         VariableAssignSegment segment = setStatement.getVariableAssigns().iterator().next();
         String value = formatValue(segment.getAssignValue().trim());
-        Charset charset = parseCharset(value);
-        currentValue = value;
-        connectionSession.getAttributeMap().attr(CommonConstants.CHARSET_ATTRIBUTE_KEY).set(charset);
+        connectionSession.getAttributeMap().attr(CommonConstants.CHARSET_ATTRIBUTE_KEY).set(parseCharset(value));
     }
     
     private String formatValue(final String value) {
-        return value.startsWith("'") && value.endsWith("'") ? value.substring(1, value.length() - 1) : value.trim();
+        return value.startsWith("'") && value.endsWith("'") || value.startsWith("\"") && value.endsWith("\"") ? value.substring(1, value.length() - 1) : value.trim();
     }
     
     private Charset parseCharset(final String value) {
@@ -60,12 +57,13 @@ public final class MySQLSetCharsetExecutor implements DatabaseSetCharsetExecutor
             case "utf8mb4":
                 return StandardCharsets.UTF_8;
             default:
-                return Charset.forName(value);
+                try {
+                    return Charset.forName(value);
+                    // CHECKSTYLE:OFF
+                } catch (Exception ex) {
+                    // CHECKSTYLE:ON
+                    throw new UnsupportedCharsetException(value.toLowerCase());
+                }
         }
-    }
-    
-    @Override
-    public String getCurrentCharset() {
-        return currentValue;
     }
 }

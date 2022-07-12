@@ -28,6 +28,7 @@ execute
     | alterTable
     | dropTable
     | truncateTable
+    | lockTable
     | createIndex
     | dropIndex
     | alterIndex
@@ -102,9 +103,15 @@ execute
     | createLockdownProfile
     | dropLockdownProfile
     | createInmemoryJoinGroup
+    | alterInmemoryJoinGroup
     | dropInmemoryJoinGroup
     | createRestorePoint
     | dropRestorePoint
     | dropOperator
+    | alterLibrary
+    | alterMaterializedZonemap
+    | alterJava
+    | alterAuditPolicy
+    | alterCluster
     ) SEMI_?
     ;

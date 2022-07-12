@@ -22,23 +22,26 @@ import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithmC
 import org.apache.shardingsphere.infra.distsql.constant.ExportableConstants;
 import org.apache.shardingsphere.infra.distsql.constant.ExportableItemConstants;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
-import org.apache.shardingsphere.infra.rule.identifier.type.exportable.ExportableRule;
 import org.apache.shardingsphere.readwritesplitting.api.ReadwriteSplittingRuleConfiguration;
 import org.apache.shardingsphere.readwritesplitting.api.rule.ReadwriteSplittingDataSourceRuleConfiguration;
+import org.apache.shardingsphere.readwritesplitting.api.strategy.DynamicReadwriteSplittingStrategyConfiguration;
+import org.apache.shardingsphere.readwritesplitting.api.strategy.StaticReadwriteSplittingStrategyConfiguration;
 import org.apache.shardingsphere.readwritesplitting.distsql.parser.statement.ShowReadwriteSplittingRulesStatement;
+import org.apache.shardingsphere.readwritesplitting.rule.ReadwriteSplittingRule;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,12 +51,14 @@ public final class ReadwriteSplittingRuleQueryResultSetTest {
     @Test
     public void assertGetRowData() {
         ShardingSphereDatabase database = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
-        when(database.getRuleMetaData().findRules(any())).thenReturn(Collections.singleton(mock(ExportableRule.class)));
-        when(database.getRuleMetaData().findRuleConfigurations(any())).thenReturn(Collections.singleton(createRuleConfiguration()));
+        ReadwriteSplittingRule rule = mock(ReadwriteSplittingRule.class);
+        when(rule.getConfiguration()).thenReturn(createRuleConfiguration());
+        when(rule.getExportData()).thenReturn(createExportedData());
+        when(database.getRuleMetaData().findSingleRule(ReadwriteSplittingRule.class)).thenReturn(Optional.of(rule));
         ReadwriteSplittingRuleQueryResultSet resultSet = new ReadwriteSplittingRuleQueryResultSet();
         resultSet.init(database, mock(ShowReadwriteSplittingRulesStatement.class));
         Collection<Object> actual = resultSet.getRowData();
-        assertThat(actual.size(), is(6));
+        assertThat(actual.size(), is(7));
         assertTrue(actual.contains("readwrite_ds"));
         assertTrue(actual.contains("ds_primary"));
         assertTrue(actual.contains("ds_slave_0,ds_slave_1"));
@@ -61,9 +66,17 @@ public final class ReadwriteSplittingRuleQueryResultSetTest {
         assertTrue(actual.contains("read_weight=2:1"));
     }
     
+    private Map<String, Object> createExportedData() {
+        Map<String, Object> result = new HashMap<>(2, 1);
+        result.put(ExportableConstants.EXPORT_DYNAMIC_READWRITE_SPLITTING_RULE, Collections.emptyMap());
+        result.put(ExportableConstants.EXPORT_STATIC_READWRITE_SPLITTING_RULE, Collections.emptyMap());
+        return result;
+    }
+    
     private RuleConfiguration createRuleConfiguration() {
         ReadwriteSplittingDataSourceRuleConfiguration dataSourceRuleConfig =
-                new ReadwriteSplittingDataSourceRuleConfiguration("readwrite_ds", "Static", getProperties("ds_primary", "ds_slave_0,ds_slave_1"), "test");
+                new ReadwriteSplittingDataSourceRuleConfiguration("readwrite_ds",
+                        new StaticReadwriteSplittingStrategyConfiguration("ds_primary", Arrays.asList("ds_slave_0", "ds_slave_1")), null, "test");
         Properties props = new Properties();
         props.setProperty("read_weight", "2:1");
         return new ReadwriteSplittingRuleConfiguration(Collections.singleton(dataSourceRuleConfig), Collections.singletonMap("test", new ShardingSphereAlgorithmConfiguration("random", props)));
@@ -72,12 +85,14 @@ public final class ReadwriteSplittingRuleQueryResultSetTest {
     @Test
     public void assertGetRowDataWithoutLoadBalancer() {
         ShardingSphereDatabase database = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
-        when(database.getRuleMetaData().findRules(any())).thenReturn(Collections.singleton(mock(ExportableRule.class)));
-        when(database.getRuleMetaData().findRuleConfigurations(any())).thenReturn(Collections.singleton(createRuleConfigurationWithoutLoadBalancer()));
+        ReadwriteSplittingRule rule = mock(ReadwriteSplittingRule.class);
+        when(rule.getConfiguration()).thenReturn(createRuleConfigurationWithoutLoadBalancer());
+        when(rule.getExportData()).thenReturn(createExportedData());
+        when(database.getRuleMetaData().findSingleRule(ReadwriteSplittingRule.class)).thenReturn(Optional.of(rule));
         ReadwriteSplittingRuleQueryResultSet resultSet = new ReadwriteSplittingRuleQueryResultSet();
         resultSet.init(database, mock(ShowReadwriteSplittingRulesStatement.class));
         Collection<Object> actual = resultSet.getRowData();
-        assertThat(actual.size(), is(6));
+        assertThat(actual.size(), is(7));
         assertTrue(actual.contains("readwrite_ds"));
         assertTrue(actual.contains("write_ds"));
         assertTrue(actual.contains("read_ds_0,read_ds_1"));
@@ -85,30 +100,25 @@ public final class ReadwriteSplittingRuleQueryResultSetTest {
     
     private RuleConfiguration createRuleConfigurationWithoutLoadBalancer() {
         ReadwriteSplittingDataSourceRuleConfiguration dataSourceRuleConfig =
-                new ReadwriteSplittingDataSourceRuleConfiguration("readwrite_ds", "Static", getProperties("write_ds", "read_ds_0,read_ds_1"), null);
+                new ReadwriteSplittingDataSourceRuleConfiguration("readwrite_ds",
+                        new StaticReadwriteSplittingStrategyConfiguration("write_ds", Arrays.asList("read_ds_0", "read_ds_1")), null, null);
         return new ReadwriteSplittingRuleConfiguration(Collections.singleton(dataSourceRuleConfig), null);
-    }
-    
-    private Properties getProperties(final String writeDataSource, final String readDataSources) {
-        Properties result = new Properties();
-        result.setProperty("write-data-source-name", writeDataSource);
-        result.setProperty("read-data-source-names", readDataSources);
-        return result;
     }
     
     @Test
     public void assertGetRowDataWithAutoAwareDataSource() {
         ShardingSphereDatabase metaData = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
-        ExportableRule exportableRule = mock(ExportableRule.class);
-        when(exportableRule.getExportData()).thenReturn(getExportData());
-        when(metaData.getRuleMetaData().findRules(ExportableRule.class)).thenReturn(Collections.singleton(exportableRule));
-        when(metaData.getRuleMetaData().findRuleConfigurations(any())).thenReturn(Collections.singleton(createRuleConfigurationWithAutoAwareDataSource()));
+        ReadwriteSplittingRule rule = mock(ReadwriteSplittingRule.class);
+        when(rule.getConfiguration()).thenReturn(createRuleConfigurationWithAutoAwareDataSource());
+        when(rule.getExportData()).thenReturn(getExportData());
+        when(metaData.getRuleMetaData().findSingleRule(ReadwriteSplittingRule.class)).thenReturn(Optional.of(rule));
         ReadwriteSplittingRuleQueryResultSet resultSet = new ReadwriteSplittingRuleQueryResultSet();
         resultSet.init(metaData, mock(ShowReadwriteSplittingRulesStatement.class));
         Collection<Object> actual = resultSet.getRowData();
-        assertThat(actual.size(), is(6));
+        assertThat(actual.size(), is(7));
         assertTrue(actual.contains("readwrite_ds"));
         assertTrue(actual.contains("rd_rs"));
+        assertTrue(actual.contains("false"));
         assertTrue(actual.contains("write_ds"));
         assertTrue(actual.contains("read_ds_0,read_ds_1"));
     }
@@ -144,9 +154,8 @@ public final class ReadwriteSplittingRuleQueryResultSetTest {
     }
     
     private RuleConfiguration createRuleConfigurationWithAutoAwareDataSource() {
-        Properties props = new Properties();
-        props.setProperty("auto-aware-data-source-name", "rd_rs");
-        ReadwriteSplittingDataSourceRuleConfiguration dataSourceRuleConfig = new ReadwriteSplittingDataSourceRuleConfiguration("readwrite_ds", "Dynamic", props, "");
+        ReadwriteSplittingDataSourceRuleConfiguration dataSourceRuleConfig = new ReadwriteSplittingDataSourceRuleConfiguration("readwrite_ds", null,
+                new DynamicReadwriteSplittingStrategyConfiguration("rd_rs", "false"), "");
         return new ReadwriteSplittingRuleConfiguration(Collections.singleton(dataSourceRuleConfig), null);
     }
 }

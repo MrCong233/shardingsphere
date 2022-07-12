@@ -17,25 +17,19 @@
 
 package org.apache.shardingsphere.singletable.rule.builder;
 
-import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
-import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
+import org.apache.shardingsphere.infra.instance.InstanceContext;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
-import org.apache.shardingsphere.infra.rule.builder.schema.DatabaseRuleBuilder;
-import org.apache.shardingsphere.infra.rule.builder.schema.DatabaseRuleBuilderFactory;
+import org.apache.shardingsphere.infra.rule.builder.database.DatabaseRuleBuilder;
+import org.apache.shardingsphere.infra.rule.builder.database.DatabaseRuleBuilderFactory;
 import org.apache.shardingsphere.infra.rule.identifier.scope.DatabaseRule;
 import org.apache.shardingsphere.singletable.config.SingleTableRuleConfiguration;
 import org.apache.shardingsphere.singletable.rule.SingleTableRule;
 import org.junit.Test;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public final class SingleTableRuleBuilderTest {
@@ -43,32 +37,17 @@ public final class SingleTableRuleBuilderTest {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void assertBuild() {
-        Collection<DatabaseRuleBuilder> builders = DatabaseRuleBuilderFactory.getInstances();
-        DatabaseRuleBuilder builder = builders.iterator().next();
-        SingleTableRuleConfiguration config = mock(SingleTableRuleConfiguration.class);
-        ShardingSphereRule shardingSphereRule = mock(ShardingSphereRule.class);
-        DatabaseRule databaseRule = builder.build(config, "", Collections.emptyMap(), Collections.singletonList(shardingSphereRule), new ConfigurationProperties(createProperties()));
-        assertThat(databaseRule, instanceOf(SingleTableRule.class));
-        assertFalse(((SingleTableRule) databaseRule).getDefaultDataSource().isPresent());
+        DatabaseRuleBuilder builder = DatabaseRuleBuilderFactory.getInstances().iterator().next();
+        DatabaseRule actual = builder.build(mock(SingleTableRuleConfiguration.class), "", Collections.emptyMap(), Collections.singleton(mock(ShardingSphereRule.class)), mock(InstanceContext.class));
+        assertThat(actual, instanceOf(SingleTableRule.class));
     }
     
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void assertBuildWithDefaultDataSource() {
-        ShardingSphereRule shardingSphereRule = mock(ShardingSphereRule.class);
-        Collection<DatabaseRuleBuilder> builders = DatabaseRuleBuilderFactory.getInstances();
-        DatabaseRuleBuilder builder = builders.iterator().next();
-        SingleTableRuleConfiguration config = new SingleTableRuleConfiguration();
-        config.setDefaultDataSource("ds_0");
-        DatabaseRule databaseRule = builder.build(config, "", Collections.emptyMap(), Collections.singletonList(shardingSphereRule), new ConfigurationProperties(createProperties()));
-        assertThat(databaseRule, instanceOf(SingleTableRule.class));
-        assertTrue(((SingleTableRule) databaseRule).getDefaultDataSource().isPresent());
-        assertThat(((SingleTableRule) databaseRule).getDefaultDataSource().get(), is("ds_0"));
-    }
-    
-    private Properties createProperties() {
-        Properties result = new Properties();
-        result.setProperty(ConfigurationPropertyKey.CHECK_DUPLICATE_TABLE_ENABLED.getKey(), Boolean.FALSE.toString());
-        return result;
+        DatabaseRuleBuilder builder = DatabaseRuleBuilderFactory.getInstances().iterator().next();
+        DatabaseRule actual = builder.build(
+                new SingleTableRuleConfiguration("foo_ds"), "", Collections.emptyMap(), Collections.singleton(mock(ShardingSphereRule.class)), mock(InstanceContext.class));
+        assertThat(actual, instanceOf(SingleTableRule.class));
     }
 }

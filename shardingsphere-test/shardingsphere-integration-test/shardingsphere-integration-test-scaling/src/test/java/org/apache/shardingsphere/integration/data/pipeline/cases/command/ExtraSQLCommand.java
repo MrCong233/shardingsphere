@@ -45,6 +45,9 @@ public final class ExtraSQLCommand {
     @XmlElement(name = "create-table-index")
     private List<String> createTableIndexList;
     
-    @XmlElement(name = "create-column-comment")
-    private List<String> createColumnCommentList;
+    @XmlElement(name = "update-table-order-status")
+    private String updateTableOrderStatus;
+    
+    @XmlElement(name = "create-index-status")
+    private String createIndexStatus;
 }

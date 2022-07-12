@@ -97,7 +97,7 @@ unreservedWord
     | SYSGUID | SYSBACKUP | SYSDBA | SYSDG | SYSKM | SYSOPER | DBA_RECYCLEBIN |SCHEMA
     | DO | DEFINER | CURRENT_USER | CASCADED | CLOSE | OPEN | NEXT | NAME | NAMES
     | COLLATION | REAL | TYPE | FIRST | RANK | SAMPLE | SYSTIMESTAMP | INTERVAL | MINUTE | ANY 
-    | LENGTH | SINGLE_C | capacityUnit | TARGET
+    | LENGTH | SINGLE_C | capacityUnit | TARGET | PUBLIC
     ;
 
 schemaName
@@ -1308,4 +1308,12 @@ joinGroupName
 
 restorePointName
     : identifier
+    ;
+
+libraryName
+    : identifier
+    ;
+
+matchString
+    : IDENTIFIER_ | ASTERISK_
     ;

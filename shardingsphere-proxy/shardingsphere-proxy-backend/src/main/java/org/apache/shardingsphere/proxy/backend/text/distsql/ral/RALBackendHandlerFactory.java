@@ -24,7 +24,6 @@ import org.apache.shardingsphere.distsql.parser.statement.ral.advanced.FormatSta
 import org.apache.shardingsphere.distsql.parser.statement.ral.advanced.ParseStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.advanced.PreviewStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.HintDistSQLStatement;
-import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.CountInstanceRulesStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ExportDatabaseConfigurationStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ShowAuthorityRuleStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ShowInstanceModeStatement;
@@ -34,7 +33,6 @@ import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.S
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ShowTrafficRulesStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ShowTransactionRuleStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ShowVariableStatement;
-import org.apache.shardingsphere.distsql.parser.statement.ral.common.updatable.AlterInstanceStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.updatable.AlterSQLParserRuleStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.updatable.AlterTrafficRuleStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.updatable.AlterTransactionRuleStatement;
@@ -57,7 +55,6 @@ import org.apache.shardingsphere.proxy.backend.text.distsql.ral.advanced.FormatS
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.advanced.ParseDistSQLHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.advanced.PreviewHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.HintDistSQLBackendHandler;
-import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.queryable.CountInstanceRulesHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.queryable.ExportDatabaseConfigurationHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.queryable.ShowAuthorityRuleHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.queryable.ShowInstanceHandler;
@@ -68,7 +65,6 @@ import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.queryable
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.queryable.ShowTrafficRulesHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.queryable.ShowTransactionRuleHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.queryable.ShowVariableHandler;
-import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.updatable.AlterInstanceHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.updatable.AlterSQLParserRuleHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.updatable.AlterTrafficRuleHandler;
 import org.apache.shardingsphere.proxy.backend.text.distsql.ral.common.updatable.AlterTransactionRuleHandler;
@@ -107,7 +103,6 @@ public final class RALBackendHandlerFactory {
         HANDLERS.put(UnlabelInstanceStatement.class, UnlabelInstanceHandler.class);
         HANDLERS.put(SetInstanceStatusStatement.class, SetInstanceStatusHandler.class);
         HANDLERS.put(SetVariableStatement.class, SetVariableHandler.class);
-        HANDLERS.put(AlterInstanceStatement.class, AlterInstanceHandler.class);
         HANDLERS.put(SetReadwriteSplittingStatusStatement.class, SetReadwriteSplittingStatusHandler.class);
         HANDLERS.put(RefreshTableMetadataStatement.class, RefreshTableMetadataHandler.class);
         HANDLERS.put(CreateTrafficRuleStatement.class, CreateTrafficRuleHandler.class);
@@ -121,7 +116,6 @@ public final class RALBackendHandlerFactory {
         HANDLERS.put(ImportDatabaseConfigurationStatement.class, ImportDatabaseConfigurationHandler.class);
         HANDLERS.put(ShowInstanceStatement.class, ShowInstanceHandler.class);
         HANDLERS.put(ShowInstanceModeStatement.class, ShowInstanceModeHandler.class);
-        HANDLERS.put(CountInstanceRulesStatement.class, CountInstanceRulesHandler.class);
         HANDLERS.put(ShowVariableStatement.class, ShowVariableHandler.class);
         HANDLERS.put(ShowReadwriteSplittingReadResourcesStatement.class, ShowReadwriteSplittingReadResourcesHandler.class);
         HANDLERS.put(ShowAuthorityRuleStatement.class, ShowAuthorityRuleHandler.class);

@@ -33,7 +33,7 @@ import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementPa
 import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementParser.CacheOptionContext;
 import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementParser.ClearHintContext;
 import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementParser.CountDatabaseRulesContext;
-import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementParser.CountInstanceRulesContext;
+import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementParser.CountSingleTableRuleContext;
 import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementParser.CreateDefaultSingleTableRuleContext;
 import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementParser.CreateTrafficRuleContext;
 import org.apache.shardingsphere.distsql.parser.autogen.CommonDistSQLStatementParser.DataSourceContext;
@@ -82,7 +82,6 @@ import org.apache.shardingsphere.distsql.parser.segment.DataSourceSegment;
 import org.apache.shardingsphere.distsql.parser.segment.TrafficRuleSegment;
 import org.apache.shardingsphere.distsql.parser.segment.TransactionProviderSegment;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.hint.ClearHintStatement;
-import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.CountInstanceRulesStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ExportDatabaseConfigurationStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ShowAuthorityRuleStatement;
 import org.apache.shardingsphere.distsql.parser.statement.ral.common.queryable.ShowInstanceModeStatement;
@@ -114,6 +113,7 @@ import org.apache.shardingsphere.distsql.parser.statement.rdl.create.CreateDefau
 import org.apache.shardingsphere.distsql.parser.statement.rdl.drop.DropDefaultSingleTableRuleStatement;
 import org.apache.shardingsphere.distsql.parser.statement.rdl.drop.DropResourceStatement;
 import org.apache.shardingsphere.distsql.parser.statement.rql.show.CountDatabaseRulesStatement;
+import org.apache.shardingsphere.distsql.parser.statement.rql.show.CountSingleTableRuleStatement;
 import org.apache.shardingsphere.distsql.parser.statement.rql.show.ShowResourcesStatement;
 import org.apache.shardingsphere.distsql.parser.statement.rql.show.ShowRulesUsedResourceStatement;
 import org.apache.shardingsphere.distsql.parser.statement.rql.show.ShowSingleTableRulesStatement;
@@ -211,8 +211,8 @@ public final class CommonDistSQLStatementVisitor extends CommonDistSQLStatementB
     }
     
     @Override
-    public ASTNode visitCountInstanceRules(final CountInstanceRulesContext ctx) {
-        return new CountInstanceRulesStatement();
+    public ASTNode visitCountSingleTableRule(final CountSingleTableRuleContext ctx) {
+        return new CountSingleTableRuleStatement(null == ctx.databaseName() ? null : (DatabaseSegment) visit(ctx.databaseName()));
     }
     
     @Override
@@ -237,7 +237,7 @@ public final class CommonDistSQLStatementVisitor extends CommonDistSQLStatementB
     
     @Override
     public ASTNode visitDropDefaultSingleTableRule(final DropDefaultSingleTableRuleContext ctx) {
-        return new DropDefaultSingleTableRuleStatement(null != ctx.existClause());
+        return new DropDefaultSingleTableRuleStatement(null != ctx.ifExists());
     }
     
     private Properties getProperties(final PropertiesDefinitionContext ctx) {
@@ -254,7 +254,7 @@ public final class CommonDistSQLStatementVisitor extends CommonDistSQLStatementB
     @Override
     public ASTNode visitDropResource(final DropResourceContext ctx) {
         boolean ignoreSingleTables = null != ctx.ignoreSingleTables();
-        return new DropResourceStatement(ctx.existClause() != null,
+        return new DropResourceStatement(ctx.ifExists() != null,
                 ctx.IDENTIFIER().stream().map(ParseTree::getText).map(each -> new IdentifierValue(each).getValue()).collect(Collectors.toList()), ignoreSingleTables);
     }
     
@@ -337,7 +337,7 @@ public final class CommonDistSQLStatementVisitor extends CommonDistSQLStatementB
     @Override
     public ASTNode visitDropTrafficRule(final DropTrafficRuleContext ctx) {
         Collection<String> ruleNames = null == ctx.ruleName() ? null : ctx.ruleName().stream().map(this::getIdentifierValue).collect(Collectors.toSet());
-        return new DropTrafficRuleStatement(ruleNames, null != ctx.ifExists());
+        return new DropTrafficRuleStatement(null != ctx.ifExists(), ruleNames);
     }
     
     @Override
@@ -364,11 +364,10 @@ public final class CommonDistSQLStatementVisitor extends CommonDistSQLStatementB
     
     @Override
     public ASTNode visitSqlParserRuleDefinition(final SqlParserRuleDefinitionContext ctx) {
-        AlterSQLParserRuleStatement result = new AlterSQLParserRuleStatement();
-        result.setSqlCommentParseEnable(null == ctx.sqlCommentParseEnable() ? null : Boolean.parseBoolean(getIdentifierValue(ctx.sqlCommentParseEnable())));
-        result.setParseTreeCache(null == ctx.parseTreeCache() ? null : visitCacheOption(ctx.parseTreeCache().cacheOption()));
-        result.setSqlStatementCache(null == ctx.sqlStatementCache() ? null : visitCacheOption(ctx.sqlStatementCache().cacheOption()));
-        return result;
+        Boolean sqlCommentParseEnable = null == ctx.sqlCommentParseEnable() ? null : Boolean.parseBoolean(getIdentifierValue(ctx.sqlCommentParseEnable()));
+        CacheOptionSegment parseTreeCache = null == ctx.parseTreeCache() ? null : visitCacheOption(ctx.parseTreeCache().cacheOption());
+        CacheOptionSegment sqlStatementCache = null == ctx.sqlStatementCache() ? null : visitCacheOption(ctx.sqlStatementCache().cacheOption());
+        return new AlterSQLParserRuleStatement(sqlCommentParseEnable, parseTreeCache, sqlStatementCache);
     }
     
     @Override
@@ -390,11 +389,7 @@ public final class CommonDistSQLStatementVisitor extends CommonDistSQLStatementB
     
     @Override
     public ASTNode visitShowTrafficRules(final ShowTrafficRulesContext ctx) {
-        ShowTrafficRulesStatement result = new ShowTrafficRulesStatement();
-        if (null != ctx.ruleName()) {
-            result.setRuleName(getIdentifierValue(ctx.ruleName()));
-        }
-        return result;
+        return new ShowTrafficRulesStatement(null == ctx.ruleName() ? null : getIdentifierValue(ctx.ruleName()));
     }
     
     @Override
