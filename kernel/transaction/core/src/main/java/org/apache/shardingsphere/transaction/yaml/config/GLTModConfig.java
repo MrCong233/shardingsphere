@@ -17,30 +17,21 @@
 
 package org.apache.shardingsphere.transaction.yaml.config;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlGlobalRuleConfiguration;
-import org.apache.shardingsphere.transaction.config.TransactionRuleConfiguration;
-
-import java.util.Properties;
-
 /**
- * Transaction rule configuration for YAML.
+ * if enable GLT mod
  */
-@Getter
-@Setter
-public final class YamlTransactionRuleConfiguration implements YamlGlobalRuleConfiguration {
-    
-    private String defaultType;
-    
-    private String providerType;
-    
-    private Properties props;
-    
-    private boolean gltMod;
-    
-    @Override
-    public Class<TransactionRuleConfiguration> getRuleConfigurationType() {
-        return TransactionRuleConfiguration.class;
+public class GLTModConfig {
+
+    public static boolean isGLTMod() {
+        return isGLTMod;
     }
+    
+    public static void setIsGLTMod(boolean isGLTMod) {
+        if (isGLTMod) {
+            GLTModConfig.isGLTMod = true;
+        }
+    }
+    
+    private static boolean isGLTMod;
+    
 }

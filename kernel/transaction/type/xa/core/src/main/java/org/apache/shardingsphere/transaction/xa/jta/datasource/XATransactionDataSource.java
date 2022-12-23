@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.transaction.xa.jta.datasource;
 
 import org.apache.shardingsphere.infra.database.type.DatabaseType;
+import org.apache.shardingsphere.transaction.xa.glt.GltMod;
 import org.apache.shardingsphere.transaction.xa.jta.connection.XAConnectionWrapperFactory;
 import org.apache.shardingsphere.transaction.xa.spi.SingleXAResource;
 import org.apache.shardingsphere.transaction.xa.spi.XATransactionManagerProvider;
@@ -85,6 +86,10 @@ public final class XATransactionDataSource implements AutoCloseable {
             Connection connection = dataSource.getConnection();
             XAConnection xaConnection = XAConnectionWrapperFactory.getInstance(databaseType).wrap(xaDataSource, connection);
             transaction.enlistResource(new SingleXAResource(resourceName, xaConnection.getXAResource()));
+
+//                    connection.getConnectionSession().getConnectionContext().getTransactionConnectionContext().setInTransaction(true);
+            GltMod.getInstance().getGltService().gltSendSnapshotCSNAfterStartTransaction(connection);
+            
             transaction.registerSynchronization(new Synchronization() {
                 
                 @Override

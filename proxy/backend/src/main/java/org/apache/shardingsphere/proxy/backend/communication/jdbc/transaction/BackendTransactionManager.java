@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.proxy.backend.communication.jdbc.transaction;
 
+import org.apache.shardingsphere.infra.metadata.database.schema.ddl.GLTDDLHandler;
 import org.apache.shardingsphere.proxy.backend.communication.TransactionManager;
 import org.apache.shardingsphere.proxy.backend.communication.BackendConnection;
 import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
@@ -25,6 +26,7 @@ import org.apache.shardingsphere.transaction.ShardingSphereTransactionManagerEng
 import org.apache.shardingsphere.transaction.api.TransactionType;
 import org.apache.shardingsphere.transaction.rule.TransactionRule;
 import org.apache.shardingsphere.transaction.spi.ShardingSphereTransactionManager;
+import org.apache.shardingsphere.transaction.xa.glt.GltMod;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -51,6 +53,7 @@ public final class BackendTransactionManager implements TransactionManager {
         TransactionRule transactionRule = ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(TransactionRule.class);
         ShardingSphereTransactionManagerEngine engine = transactionRule.getResource();
         shardingSphereTransactionManager = null == engine ? null : engine.getTransactionManager(transactionType);
+        
     }
     
     @Override
@@ -66,12 +69,21 @@ public final class BackendTransactionManager implements TransactionManager {
         } else {
             shardingSphereTransactionManager.begin();
         }
+        // get snapshot csn from redis and save in a ThreadLocal variable
+        GltMod.getInstance().getGltService().gltBeginTransaction();
     }
     
     @Override
     public void commit() throws SQLException {
+        // send commitCSN before PREPARE to each dn
+        Collection<Connection> connectionList = connection.getCachedConnections().values();
+        String csnLockId = "";
+        // set commitcsn to each dn
+        
         if (connection.getConnectionSession().getTransactionStatus().isInTransaction()) {
             try {
+                csnLockId = GltMod.getInstance().getGltService().gltBeforeCommit(connectionList);
+                
                 if (TransactionType.LOCAL == transactionType || null == shardingSphereTransactionManager) {
                     localTransactionManager.commit();
                 } else {
@@ -82,6 +94,8 @@ public final class BackendTransactionManager implements TransactionManager {
                 connection.getConnectionSession().getTransactionStatus().setRollbackOnly(false);
                 connection.getConnectionSession().getConnectionContext().clearTransactionConnectionContext();
                 connection.getConnectionSession().getConnectionContext().clearCursorConnectionContext();
+                
+                GltMod.getInstance().getGltService().gltAfterCommit(csnLockId);
             }
         }
     }

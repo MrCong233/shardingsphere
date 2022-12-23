@@ -15,32 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.transaction.yaml.config;
-
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlGlobalRuleConfiguration;
-import org.apache.shardingsphere.transaction.config.TransactionRuleConfiguration;
-
-import java.util.Properties;
+package org.apache.shardingsphere.transaction.xa.glt;
 
 /**
- * Transaction rule configuration for YAML.
+ * maintain the snapshot csn unique in the same transaction.
  */
-@Getter
-@Setter
-public final class YamlTransactionRuleConfiguration implements YamlGlobalRuleConfiguration {
+public class GLTCSNThreadLocal {
     
-    private String defaultType;
+    private static final long GLT_CSN_EMPTY = 0;
     
-    private String providerType;
+    private static ThreadLocal<Long> gltCSN = new ThreadLocal<>();
     
-    private Properties props;
+    public synchronized static Long getCSN() {
+        return gltCSN.get();
+    }
     
-    private boolean gltMod;
+    public synchronized static void setCSN(final Long id) {
+        gltCSN.set(id);
+    }
     
-    @Override
-    public Class<TransactionRuleConfiguration> getRuleConfigurationType() {
-        return TransactionRuleConfiguration.class;
+    public static boolean checkId() {
+        return gltCSN.equals(GLT_CSN_EMPTY);
     }
 }
+

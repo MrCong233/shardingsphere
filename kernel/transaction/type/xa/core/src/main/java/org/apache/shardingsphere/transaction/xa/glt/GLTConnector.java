@@ -15,32 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.transaction.yaml.config;
+package org.apache.shardingsphere.transaction.xa.glt;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlGlobalRuleConfiguration;
-import org.apache.shardingsphere.transaction.config.TransactionRuleConfiguration;
-
-import java.util.Properties;
+import java.sql.SQLException;
 
 /**
- * Transaction rule configuration for YAML.
+ * connect to glt node, which store the latest global csn
  */
-@Getter
-@Setter
-public final class YamlTransactionRuleConfiguration implements YamlGlobalRuleConfiguration {
+public interface GLTConnector {
     
-    private String defaultType;
-    
-    private String providerType;
-    
-    private Properties props;
-    
-    private boolean gltMod;
-    
-    @Override
-    public Class<TransactionRuleConfiguration> getRuleConfigurationType() {
-        return TransactionRuleConfiguration.class;
+    /**
+     * get instance of GLTConnector
+     * @return null
+     */
+    static GLTConnector getInstance() {
+        return null;
     }
+    
+    /**
+     * get current global csn from glt, and add 1 to the global csn in glt
+     *
+     * @return
+     */
+    long gltGetNextCSN();
+    
+    /**
+     * init global csn in glt
+     *
+     * @return
+     */
+    long gltInitCSN();
+    
+    /**
+     * get current global csn from glt
+     *
+     * @return
+     * @throws SQLException
+     */
+    long gltGetCurrentCSN() throws SQLException;
 }

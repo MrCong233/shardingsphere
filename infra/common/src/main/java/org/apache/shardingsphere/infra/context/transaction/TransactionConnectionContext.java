@@ -28,12 +28,14 @@ import lombok.Setter;
 public final class TransactionConnectionContext implements AutoCloseable {
     
     private volatile boolean inTransaction;
-    
+
+    private volatile long csn;
     private volatile String readWriteSplitReplicaRoute;
     
     @Override
     public void close() {
         inTransaction = false;
         readWriteSplitReplicaRoute = null;
+        csn = 0;
     }
 }
