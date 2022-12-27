@@ -100,7 +100,7 @@ public class RedisGLTService implements GLTService {
      * @throws SQLException SQL exception
      */
     @Override
-    public void gltBeginTransaction() throws SQLException {
+    public void gltBeginTransaction() {
         long csn = redisConnector.gltGetCurrentCSN();
         GLTCSNThreadLocal.setCSN(csn);
     }

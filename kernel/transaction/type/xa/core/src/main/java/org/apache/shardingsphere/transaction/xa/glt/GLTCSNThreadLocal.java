@@ -38,4 +38,3 @@ public class GLTCSNThreadLocal {
         return gltCSN.equals(GLT_CSN_EMPTY);
     }
 }
-

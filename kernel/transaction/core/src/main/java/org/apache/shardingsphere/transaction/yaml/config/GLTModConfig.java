@@ -18,20 +18,29 @@
 package org.apache.shardingsphere.transaction.yaml.config;
 
 /**
- * if enable GLT mod
+ * if enable GLT mod.
  */
 public class GLTModConfig {
-
+    
+    private static boolean isGLTMod;
+    
+    /**
+     * Is glt mod.
+     *
+     * @return isGLTMod
+     */
     public static boolean isGLTMod() {
         return isGLTMod;
     }
     
-    public static void setIsGLTMod(boolean isGLTMod) {
+    /**
+     * set isGLTMod.
+     *
+     * @param isGLTMod isGLTMod
+     */
+    public static void setIsGLTMod(final boolean isGLTMod) {
         if (isGLTMod) {
             GLTModConfig.isGLTMod = true;
         }
     }
-    
-    private static boolean isGLTMod;
-    
 }

@@ -47,7 +47,7 @@ public interface GLTService {
     /**
      * start transaction
      */
-    void gltBeginTransaction() throws SQLException;
+    void gltBeginTransaction();
     
     /**
      * send snapshot csn to a dn after cn send "start transaction" to the dn

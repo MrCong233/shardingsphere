@@ -86,8 +86,8 @@ public final class XATransactionDataSource implements AutoCloseable {
             Connection connection = dataSource.getConnection();
             XAConnection xaConnection = XAConnectionWrapperFactory.getInstance(databaseType).wrap(xaDataSource, connection);
             transaction.enlistResource(new SingleXAResource(resourceName, xaConnection.getXAResource()));
-
-//                    connection.getConnectionSession().getConnectionContext().getTransactionConnectionContext().setInTransaction(true);
+            
+            // connection.getConnectionSession().getConnectionContext().getTransactionConnectionContext().setInTransaction(true);
             GltMod.getInstance().getGltService().gltSendSnapshotCSNAfterStartTransaction(connection);
             
             transaction.registerSynchronization(new Synchronization() {

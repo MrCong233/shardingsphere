@@ -32,7 +32,15 @@ public class GltMod {
     private GLTService gltService;
     
     private GltMod() {
-        initGltMod();
+        boolean flag = GLTModConfig.isGLTMod();
+        if (flag) {
+            isGltMod = true;
+            gltService = null;
+            gltService = RedisGLTService.getInstance();
+        } else {
+            isGltMod = false;
+            gltService = GLTOffService.getInstance();
+        }
     }
     
     private static class GltModHolder {
@@ -47,22 +55,5 @@ public class GltMod {
      */
     public static GltMod getInstance() {
         return GltModHolder.INSTANCE;
-    }
-    
-    /**
-     * init GLTService singleton instance according to if GLTMod is configured in yaml.
-     *
-     * @return if GLTMod on
-     */
-    public boolean initGltMod() {
-        boolean flag = GLTModConfig.isGLTMod();
-        if (flag) {
-            isGltMod = true;
-            gltService = RedisGLTService.getInstance();
-        } else {
-            isGltMod = false;
-            gltService = GLTOffService.getInstance();
-        }
-        return flag;
     }
 }
