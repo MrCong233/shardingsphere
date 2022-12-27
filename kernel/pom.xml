@@ -38,5 +38,6 @@
         <module>sql-federation</module>
         <module>sql-translator</module>
         <module>traffic</module>
+        <module>global-logical-time</module>
     </modules>
 </project>
