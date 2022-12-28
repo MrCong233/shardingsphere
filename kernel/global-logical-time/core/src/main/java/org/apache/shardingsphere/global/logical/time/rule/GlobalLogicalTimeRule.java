@@ -18,12 +18,13 @@
 package org.apache.shardingsphere.global.logical.time.rule;
 
 import lombok.Getter;
+import org.apache.shardingsphere.global.logical.time.GlobalLogicalTimeEngine;
 import org.apache.shardingsphere.global.logical.time.config.GlobalLogicalTimeRuleConfiguration;
 import org.apache.shardingsphere.global.logical.time.config.RedisConnectionOptionConfiguration;
 import org.apache.shardingsphere.infra.rule.identifier.scope.GlobalRule;
 
 /**
- * global logical time rule.
+ * Global logical time rule.
  */
 @Getter
 public final class GlobalLogicalTimeRule implements GlobalRule {
@@ -33,13 +34,20 @@ public final class GlobalLogicalTimeRule implements GlobalRule {
     private final boolean globalLogicalTimeEnabled;
     
     private final RedisConnectionOptionConfiguration redisOption;
+
+    private volatile GlobalLogicalTimeEngine resource;
     
     public GlobalLogicalTimeRule(final GlobalLogicalTimeRuleConfiguration configuration) {
         this.configuration = configuration;
         this.globalLogicalTimeEnabled = configuration.isGlobalLogicalTimeEnabled();
         this.redisOption = configuration.getRedisOption();
+        this.resource = createGlobalLogicalTimeRuleEngine();
     }
-    
+
+    private synchronized GlobalLogicalTimeEngine createGlobalLogicalTimeRuleEngine(){
+        return new GlobalLogicalTimeEngine();
+    }
+
     @Override
     public String getType() {
         return GlobalLogicalTimeRule.class.getSimpleName();
