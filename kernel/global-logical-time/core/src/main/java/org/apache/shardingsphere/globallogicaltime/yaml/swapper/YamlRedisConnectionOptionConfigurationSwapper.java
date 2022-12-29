@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.global.logical.time.yaml.swapper;
+package org.apache.shardingsphere.globallogicaltime.yaml.swapper;
 
-import org.apache.shardingsphere.global.logical.time.config.RedisConnectionOptionConfiguration;
-import org.apache.shardingsphere.global.logical.time.yaml.config.YamlRedisConnectionOptionConfiguration;
+import org.apache.shardingsphere.globallogicaltime.config.RedisConnectionOptionConfiguration;
+import org.apache.shardingsphere.globallogicaltime.yaml.config.YamlRedisConnectionOptionConfiguration;
 import org.apache.shardingsphere.infra.util.yaml.swapper.YamlConfigurationSwapper;
 
 /**

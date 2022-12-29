@@ -15,5 +15,5 @@
 # limitations under the License.
 #
 
-org.apache.shardingsphere.global.logical.time.yaml.swapper.YamlGlobalLogicalTimeRuleConfigurationSwapper
+org.apache.shardingsphere.globallogicaltime.yaml.swapper.YamlGlobalLogicalTimeRuleConfigurationSwapper
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.global.logical.time.yaml.config;
+package org.apache.shardingsphere.globallogicaltime.yaml.config;
 
 import lombok.Getter;
 import lombok.Setter;

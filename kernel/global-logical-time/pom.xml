@@ -14,5 +14,6 @@
     <modules>
         <module>api</module>
         <module>core</module>
+        <module>redis</module>
     </modules>
 </project>

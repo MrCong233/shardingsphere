@@ -15,20 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.global.logical.time.config;
+package org.apache.shardingsphere.globallogicaltime.constant;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.infra.config.rule.scope.GlobalRuleConfiguration;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
- * global logical time rule configuration.
+ * global logical time order.
  */
-@RequiredArgsConstructor
-@Getter
-public class GlobalLogicalTimeRuleConfiguration implements GlobalRuleConfiguration {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class GlobalLogicalTimeOrder {
     
-    private final boolean globalLogicalTimeEnabled;
-    
-    private final RedisConnectionOptionConfiguration redisOption;
+    /**
+     * Transaction order.
+     */
+    public static final int ORDER = 605;
 }

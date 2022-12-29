@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.global.logical.time.rule;
+package org.apache.shardingsphere.globallogicaltime.rule;
 
 import lombok.Getter;
-import org.apache.shardingsphere.global.logical.time.GlobalLogicalTimeEngine;
-import org.apache.shardingsphere.global.logical.time.config.GlobalLogicalTimeRuleConfiguration;
-import org.apache.shardingsphere.global.logical.time.config.RedisConnectionOptionConfiguration;
+import org.apache.shardingsphere.globallogicaltime.GlobalLogicalTimeEngine;
+import org.apache.shardingsphere.globallogicaltime.config.GlobalLogicalTimeRuleConfiguration;
+import org.apache.shardingsphere.globallogicaltime.config.RedisConnectionOptionConfiguration;
 import org.apache.shardingsphere.infra.rule.identifier.scope.GlobalRule;
 
 /**
@@ -34,33 +34,35 @@ public final class GlobalLogicalTimeRule implements GlobalRule {
     private final boolean globalLogicalTimeEnabled;
     
     private final RedisConnectionOptionConfiguration redisOption;
-
-    private volatile GlobalLogicalTimeEngine resource;
+    
+    private volatile GlobalLogicalTimeEngine globalLogicalTimeEngine;
     
     public GlobalLogicalTimeRule(final GlobalLogicalTimeRuleConfiguration configuration) {
         this.configuration = configuration;
         this.globalLogicalTimeEnabled = configuration.isGlobalLogicalTimeEnabled();
         this.redisOption = configuration.getRedisOption();
-        this.resource = createGlobalLogicalTimeRuleEngine();
+        this.globalLogicalTimeEngine = createGlobalLogicalTimeRuleEngine();
     }
-
-    private synchronized GlobalLogicalTimeEngine createGlobalLogicalTimeRuleEngine(){
-        return new GlobalLogicalTimeEngine();
+    
+    private synchronized GlobalLogicalTimeEngine createGlobalLogicalTimeRuleEngine() {
+        if (configuration == null) {
+            return new GlobalLogicalTimeEngine();
+        } else {
+            return new GlobalLogicalTimeEngine(configuration);
+        }
     }
-
+    
     @Override
     public String getType() {
         return GlobalLogicalTimeRule.class.getSimpleName();
     }
     
-    // TODO
-    
     /**
-     * Get GLT engine.
+     * Get global logical time engine.
      *
-     * @param databaseType database type
+     * @return globalLogicalTimeEngine global logical time engine
      */
-    public void getGlobalLogicalTimeEngine(final String databaseType) {
-        System.out.println("TODO");
+    public GlobalLogicalTimeEngine getGlobalLogicalTimeEngine() {
+        return globalLogicalTimeEngine;
     }
 }

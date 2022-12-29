@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-org.apache.shardingsphere.global.logical.time.rule.builder.GlobalLogicalTimeRuleBuilder
+org.apache.shardingsphere.globallogicaltime.rule.builder.GlobalLogicalTimeRuleBuilder

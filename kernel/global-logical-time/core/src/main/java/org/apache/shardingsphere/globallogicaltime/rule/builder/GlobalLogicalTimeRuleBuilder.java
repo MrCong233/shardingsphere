@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.global.logical.time.rule.builder;
+package org.apache.shardingsphere.globallogicaltime.rule.builder;
 
-import org.apache.shardingsphere.global.logical.time.config.GlobalLogicalTimeRuleConfiguration;
-import org.apache.shardingsphere.global.logical.time.constant.GlobalLogicalTimeOrder;
-import org.apache.shardingsphere.global.logical.time.rule.GlobalLogicalTimeRule;
+import org.apache.shardingsphere.globallogicaltime.config.GlobalLogicalTimeRuleConfiguration;
+import org.apache.shardingsphere.globallogicaltime.constant.GlobalLogicalTimeOrder;
+import org.apache.shardingsphere.globallogicaltime.rule.GlobalLogicalTimeRule;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.instance.InstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;

@@ -15,27 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.global.logical.time.yaml.config;
+package org.apache.shardingsphere.globallogicaltime.config;
 
 import lombok.Getter;
-import lombok.Setter;
-import org.apache.shardingsphere.global.logical.time.config.GlobalLogicalTimeRuleConfiguration;
-import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
-import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlGlobalRuleConfiguration;
+import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.infra.config.rule.scope.GlobalRuleConfiguration;
 
 /**
- * global logical time configuration for YAML.
+ * global logical time rule configuration.
  */
+@RequiredArgsConstructor
 @Getter
-@Setter
-public class YamlGlobalLogicalTimeRuleConfiguration implements YamlGlobalRuleConfiguration {
+public class GlobalLogicalTimeRuleConfiguration implements GlobalRuleConfiguration {
     
-    private boolean globalLogicalTimeEnabled;
+    private final boolean globalLogicalTimeEnabled;
     
-    private YamlRedisConnectionOptionConfiguration redisOption;
-    
-    @Override
-    public Class<? extends RuleConfiguration> getRuleConfigurationType() {
-        return GlobalLogicalTimeRuleConfiguration.class;
-    }
+    private final RedisConnectionOptionConfiguration redisOption;
 }

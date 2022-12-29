@@ -15,19 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.global.logical.time.constant;
+package org.apache.shardingsphere.globallogicaltime.yaml.config;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.shardingsphere.globallogicaltime.config.GlobalLogicalTimeRuleConfiguration;
+import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
+import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlGlobalRuleConfiguration;
 
 /**
- * global logical time order.
+ * global logical time configuration for YAML.
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class GlobalLogicalTimeOrder {
+@Getter
+@Setter
+public class YamlGlobalLogicalTimeRuleConfiguration implements YamlGlobalRuleConfiguration {
     
-    /**
-     * Transaction order.
-     */
-    public static final int ORDER = 605;
+    private boolean globalLogicalTimeEnabled;
+    
+    private YamlRedisConnectionOptionConfiguration redisOption;
+    
+    @Override
+    public Class<? extends RuleConfiguration> getRuleConfigurationType() {
+        return GlobalLogicalTimeRuleConfiguration.class;
+    }
 }
