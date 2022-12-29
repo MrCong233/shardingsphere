@@ -1,6 +1,7 @@
 package org.apache.shardingsphere.globallogicaltime.redis.executor;
 
 import org.apache.shardingsphere.globallogicaltime.spi.GlobalLogicalTimeExecutor;
+import org.apache.shardingsphere.infra.context.transaction.TransactionConnectionContext;
 import org.apache.shardingsphere.infra.executor.kernel.model.ExecutionGroup;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutionUnit;
 
@@ -24,7 +25,7 @@ public class DefaultGlobalLogicalTimeExecutor implements GlobalLogicalTimeExecut
     }
 
     @Override
-    public void getSnapshotCSNWhenBeginTransaction() throws SQLException {
+    public void getGlobalCSNWhenBeginTransaction(TransactionConnectionContext transactionConnectionContext) {
 
     }
 

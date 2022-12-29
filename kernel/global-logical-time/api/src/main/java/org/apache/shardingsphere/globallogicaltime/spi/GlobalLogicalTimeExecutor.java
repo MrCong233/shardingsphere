@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.globallogicaltime.spi;
 
+import org.apache.shardingsphere.infra.context.transaction.TransactionConnectionContext;
 import org.apache.shardingsphere.infra.executor.kernel.model.ExecutionGroup;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutionUnit;
 
@@ -44,13 +45,13 @@ public interface GlobalLogicalTimeExecutor {
      * @param csnLockId csn lock id
      */
     void afterCommit(String csnLockId);
-    
+
     /**
-     * start transaction.
+     * Get global csn when beginning transaction.
      *
-     * @throws SQLException sql exception
+     * @param transactionConnectionContext transaction connection context
      */
-    void getSnapshotCSNWhenBeginTransaction() throws SQLException;
+    void getGlobalCSNWhenBeginTransaction(TransactionConnectionContext transactionConnectionContext);
     
     /**
      * send snapshot csn to a dn after cn send "start transaction" to the dn.

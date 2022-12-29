@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.globallogicaltime;
 
+import lombok.Getter;
 import org.apache.shardingsphere.globallogicaltime.config.GlobalLogicalTimeRuleConfiguration;
 import org.apache.shardingsphere.globallogicaltime.redis.executor.BasedRedisGlobalLogicalTimeExecutor;
 import org.apache.shardingsphere.globallogicaltime.redis.executor.DefaultGlobalLogicalTimeExecutor;
@@ -25,9 +26,10 @@ import org.apache.shardingsphere.globallogicaltime.spi.GlobalLogicalTimeExecutor
 /**
  * Global logical time engine.
  */
+@Getter
 public class GlobalLogicalTimeEngine {
     
-    private GlobalLogicalTimeExecutor globalLogicalTimeExecutor;
+    private final GlobalLogicalTimeExecutor globalLogicalTimeExecutor;
 
     public GlobalLogicalTimeEngine(GlobalLogicalTimeRuleConfiguration configuration) {
         if (configuration.isGlobalLogicalTimeEnabled()) {

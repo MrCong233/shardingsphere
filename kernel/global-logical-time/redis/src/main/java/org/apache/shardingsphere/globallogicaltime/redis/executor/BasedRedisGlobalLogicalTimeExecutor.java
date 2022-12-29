@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.globallogicaltime.config.GlobalLogicalTimeRuleConfiguration;
 import org.apache.shardingsphere.globallogicaltime.redis.connector.GlobalLogicalTimeRedisConnector;
 import org.apache.shardingsphere.globallogicaltime.spi.GlobalLogicalTimeExecutor;
+import org.apache.shardingsphere.infra.context.transaction.TransactionConnectionContext;
 import org.apache.shardingsphere.infra.executor.kernel.model.ExecutionGroup;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutionUnit;
 
@@ -92,22 +93,20 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
     }
     
     @Override
-    public void getSnapshotCSNWhenBeginTransaction() throws SQLException {
+    public void getGlobalCSNWhenBeginTransaction(TransactionConnectionContext transactionConnectionContext)  {
         long csn = redisConnector.getCurrentCSN();
-        // TODO
-//        GLTCSNThreadLocal.setCSN(csn);
+        transactionConnectionContext.setGlobalCSN(csn);
     }
 
     /**
-     * send snapshot csn to each dns after cn send "START TRANSACTION" command;
+     * Send snapshot csn to each dns after cn send "START TRANSACTION" command.
      *
      * @param connection connection to dn
      * @throws SQLException SQL exception
      */
     @Override
     public void sendSnapshotCSNAfterStartTransaction(Connection connection) throws SQLException {
-        // TODO
-        // long csn = GLTCSNThreadLocal.getCSN();
+//        long csn = GLTCSNThreadLocal.getCSN();
         long csn = 0;
         sendSnapshotCSN(connection, csn);
     }
@@ -129,7 +128,7 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
             }
         }
         if (!connections.isEmpty()) {
-            boolean inTransaction = !connections.get(0).getAutoCommit(); // By default, transactions' are read-commit level
+            boolean inTransaction = !connections.get(0).getAutoCommit(); // By default, shardingsphere transaction is read-commit level.
             // By default, transactions' isolation are read-commit.
             if (inTransaction) {
                 long csn = redisConnector.getCurrentCSN();
