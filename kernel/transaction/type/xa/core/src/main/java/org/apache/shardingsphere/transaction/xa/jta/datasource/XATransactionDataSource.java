@@ -88,6 +88,10 @@ public final class XATransactionDataSource implements AutoCloseable {
             Connection connection = dataSource.getConnection();
             XAConnection xaConnection = TypedSPIRegistry.getRegisteredService(XAConnectionWrapper.class, databaseType.getType()).wrap(xaDataSource, connection);
             transaction.enlistResource(new SingleXAResource(resourceName, xaConnection.getXAResource()));
+            
+            // TODO
+            //            GltMod.getInstance().getGltService().gltSendSnapshotCSNAfterStartTransaction(connection);
+            
             transaction.registerSynchronization(new Synchronization() {
                 
                 @Override
@@ -119,5 +123,9 @@ public final class XATransactionDataSource implements AutoCloseable {
             ReflectionUtil.invokeMethod(dataSource.getClass().getDeclaredMethod("close"), dataSource);
         } catch (final ReflectiveOperationException ignored) {
         }
+    }
+    
+    public DataSource getDataSource() {
+        return dataSource;
     }
 }
