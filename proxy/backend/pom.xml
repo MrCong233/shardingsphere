@@ -207,5 +207,11 @@
             <artifactId>HikariCP</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-global-logcial-time-core</artifactId>
+            <version>5.3.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>
