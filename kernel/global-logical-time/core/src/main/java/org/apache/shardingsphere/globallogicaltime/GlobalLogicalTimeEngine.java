@@ -30,7 +30,7 @@ import org.apache.shardingsphere.globallogicaltime.spi.GlobalLogicalTimeExecutor
 public class GlobalLogicalTimeEngine {
     
     private final GlobalLogicalTimeExecutor globalLogicalTimeExecutor;
-
+    
     public GlobalLogicalTimeEngine(GlobalLogicalTimeRuleConfiguration configuration) {
         if (configuration.isGlobalLogicalTimeEnabled()) {
             globalLogicalTimeExecutor = new BasedRedisGlobalLogicalTimeExecutor(configuration);
@@ -38,7 +38,7 @@ public class GlobalLogicalTimeEngine {
             globalLogicalTimeExecutor = new DefaultGlobalLogicalTimeExecutor();
         }
     }
-
+    
     public GlobalLogicalTimeEngine() {
         globalLogicalTimeExecutor = new DefaultGlobalLogicalTimeExecutor();
     }

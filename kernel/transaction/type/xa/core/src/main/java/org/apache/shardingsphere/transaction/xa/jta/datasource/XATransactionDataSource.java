@@ -23,7 +23,6 @@ import org.apache.shardingsphere.infra.util.spi.type.typed.TypedSPIRegistry;
 import org.apache.shardingsphere.transaction.xa.jta.connection.XAConnectionWrapper;
 import org.apache.shardingsphere.transaction.xa.jta.datasource.properties.XADataSourceDefinition;
 import org.apache.shardingsphere.transaction.xa.jta.datasource.swapper.DataSourceSwapper;
-import org.apache.shardingsphere.transaction.xa.glt.GltMod;
 import org.apache.shardingsphere.transaction.xa.spi.SingleXAResource;
 import org.apache.shardingsphere.transaction.xa.spi.XATransactionManagerProvider;
 
@@ -90,8 +89,8 @@ public final class XATransactionDataSource implements AutoCloseable {
             XAConnection xaConnection = TypedSPIRegistry.getRegisteredService(XAConnectionWrapper.class, databaseType.getType()).wrap(xaDataSource, connection);
             transaction.enlistResource(new SingleXAResource(resourceName, xaConnection.getXAResource()));
             
-            // connection.getConnectionSession().getConnectionContext().getTransactionConnectionContext().setInTransaction(true);
-            GltMod.getInstance().getGltService().gltSendSnapshotCSNAfterStartTransaction(connection);
+            // TODO
+            //            GltMod.getInstance().getGltService().gltSendSnapshotCSNAfterStartTransaction(connection);
             
             transaction.registerSynchronization(new Synchronization() {
                 
@@ -125,7 +124,7 @@ public final class XATransactionDataSource implements AutoCloseable {
         } catch (final ReflectiveOperationException ignored) {
         }
     }
-
+    
     public DataSource getDataSource() {
         return dataSource;
     }

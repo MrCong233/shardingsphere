@@ -108,16 +108,15 @@ cdc:
   port: 33071
 
 globalLogicalTime:
-  globalLogicalTimeEnabled: false
+  globalLogicalTimeEnabled: true
   redisOption:
-    host: 127.0.0.1
+    host: 192.168.0.243
     port: 6379
     password:
-    timeoutInterval: 4000
+    timeoutInterval: 40000
     maxIdle: 8
     maxTotal: 18
     lockExpirationTime: 10
-
 props:
   max-connections-size-per-query: 1
   kernel-executor-size: 16  # Infinite by default.

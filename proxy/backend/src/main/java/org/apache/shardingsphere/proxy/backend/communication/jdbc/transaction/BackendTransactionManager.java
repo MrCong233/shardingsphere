@@ -46,9 +46,9 @@ public final class BackendTransactionManager implements TransactionManager {
     private final LocalTransactionManager localTransactionManager;
     
     private final ShardingSphereTransactionManager shardingSphereTransactionManager;
-
+    
     private final GlobalLogicalTimeExecutor globalLogicalTimeExecutor;
-
+    
     public BackendTransactionManager(final BackendConnection backendConnection) {
         connection = backendConnection;
         transactionType = connection.getConnectionSession().getTransactionStatus().getTransactionType();
@@ -56,7 +56,8 @@ public final class BackendTransactionManager implements TransactionManager {
         TransactionRule transactionRule = ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(TransactionRule.class);
         ShardingSphereTransactionManagerEngine engine = transactionRule.getResource();
         shardingSphereTransactionManager = null == engine ? null : engine.getTransactionManager(transactionType);
-        GlobalLogicalTimeRule globalLogicalTimeRule = ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(GlobalLogicalTimeRule.class);
+        GlobalLogicalTimeRule globalLogicalTimeRule =
+                ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(GlobalLogicalTimeRule.class);
         GlobalLogicalTimeEngine globalLogicalTimeEngine = globalLogicalTimeRule.getGlobalLogicalTimeEngine();
         globalLogicalTimeExecutor = globalLogicalTimeEngine.getGlobalLogicalTimeExecutor();
     }

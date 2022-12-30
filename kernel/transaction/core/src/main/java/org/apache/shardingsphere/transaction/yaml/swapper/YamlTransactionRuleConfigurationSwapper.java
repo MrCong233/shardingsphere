@@ -18,10 +18,8 @@
 package org.apache.shardingsphere.transaction.yaml.swapper;
 
 import org.apache.shardingsphere.infra.yaml.config.swapper.rule.YamlRuleConfigurationSwapper;
-import org.apache.shardingsphere.infra.metadata.database.schema.ddl.GLTDDLHandler;
 import org.apache.shardingsphere.transaction.config.TransactionRuleConfiguration;
 import org.apache.shardingsphere.transaction.constant.TransactionOrder;
-import org.apache.shardingsphere.transaction.yaml.config.GLTModConfig;
 import org.apache.shardingsphere.transaction.yaml.config.YamlTransactionRuleConfiguration;
 
 import java.util.Properties;
@@ -42,8 +40,6 @@ public final class YamlTransactionRuleConfigurationSwapper implements YamlRuleCo
     
     @Override
     public TransactionRuleConfiguration swapToObject(final YamlTransactionRuleConfiguration yamlConfig) {
-        GLTModConfig.setIsGLTMod(yamlConfig.isGltMod());
-        GLTDDLHandler.setGLTConfig(yamlConfig.isGltMod());
         return new TransactionRuleConfiguration(yamlConfig.getDefaultType(), yamlConfig.getProviderType(), null == yamlConfig.getProps() ? new Properties() : yamlConfig.getProps());
     }
     

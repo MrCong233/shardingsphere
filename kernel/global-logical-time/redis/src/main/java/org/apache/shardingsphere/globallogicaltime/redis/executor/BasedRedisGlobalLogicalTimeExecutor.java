@@ -38,17 +38,17 @@ import java.util.concurrent.TimeoutException;
  */
 @Slf4j
 public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExecutor {
-
+    
     private GlobalLogicalTimeRedisConnector redisConnector;
-
+    
     public BasedRedisGlobalLogicalTimeExecutor(GlobalLogicalTimeRuleConfiguration configuration) {
         init(configuration);
     }
-
+    
     private void init(GlobalLogicalTimeRuleConfiguration configuration) {
         redisConnector = new GlobalLogicalTimeRedisConnector(configuration);
     }
-
+    
     /**
      * Try csn lock before transaction starts to  commit, if success get current global csn and send to each dns.
      *
@@ -65,7 +65,7 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }
-
+        
         // Set commit csn to each dns.
         String order = "SELECT " + redisConnector.getCurrentCSN() + " AS SETCOMMITCSN;";
         for (Connection CSNConnection : connectionList) {
@@ -80,7 +80,7 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
         }
         return csnLockId;
     }
-
+    
     /**
      * Add 1 to the global csn in redis, and release csn lock.
      *
@@ -93,11 +93,11 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
     }
     
     @Override
-    public void getGlobalCSNWhenBeginTransaction(TransactionConnectionContext transactionConnectionContext)  {
+    public void getGlobalCSNWhenBeginTransaction(TransactionConnectionContext transactionConnectionContext) {
         long csn = redisConnector.getCurrentCSN();
         transactionConnectionContext.setGlobalCSN(csn);
     }
-
+    
     /**
      * Send snapshot csn to each dns after cn send "START TRANSACTION" command.
      *
@@ -106,11 +106,11 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
      */
     @Override
     public void sendSnapshotCSNAfterStartTransaction(Connection connection) throws SQLException {
-//        long csn = GLTCSNThreadLocal.getCSN();
+        // long csn = GLTCSNThreadLocal.getCSN();
         long csn = 0;
         sendSnapshotCSN(connection, csn);
     }
-
+    
     /**
      * Send snapshot csn to each dns in Read Commit isolation level.
      *
@@ -138,7 +138,7 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
             }
         }
     }
-
+    
     private void sendSnapshotCSN(Connection connection, long csn) throws SQLException {
         String order = "SELECT " + csn + " AS SETSNAPSHOTCSN;";
         try (Statement statement = connection.createStatement()) {

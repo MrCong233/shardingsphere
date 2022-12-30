@@ -29,7 +29,7 @@ import java.util.Collection;
  * Global logical time executor.
  */
 public interface GlobalLogicalTimeExecutor {
-
+    
     /**
      * before xa transaction start to commit.
      *
@@ -45,7 +45,7 @@ public interface GlobalLogicalTimeExecutor {
      * @param csnLockId csn lock id
      */
     void afterCommit(String csnLockId);
-
+    
     /**
      * Get global csn when beginning transaction.
      *

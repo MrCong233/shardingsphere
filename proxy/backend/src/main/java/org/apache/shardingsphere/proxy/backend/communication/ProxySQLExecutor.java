@@ -221,7 +221,7 @@ public final class ProxySQLExecutor {
                 ProxyContext.getInstance().getDatabase(backendConnection.getConnectionSession().getDatabaseName()).getResourceMetaData().getStorageTypes());
         ExecutionGroupContext<JDBCExecutionUnit> executionGroupContext;
         TransactionConnectionContext transactionConnectionContext = backendConnection.getConnectionSession().getConnectionContext().getTransactionConnectionContext();
-
+        
         try {
             executionGroupContext = prepareEngine.prepare(executionContext.getRouteContext(), executionContext.getExecutionUnits());
         } catch (final SQLException ex) {
@@ -230,8 +230,8 @@ public final class ProxySQLExecutor {
         executionGroupContext.setDatabaseName(backendConnection.getConnectionSession().getDatabaseName());
         executionGroupContext.setGrantee(backendConnection.getConnectionSession().getGrantee());
         executionGroupContext.setExecutionID(backendConnection.getConnectionSession().getExecutionId());
-        ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(GlobalLogicalTimeRule.class).
-                getGlobalLogicalTimeEngine().getGlobalLogicalTimeExecutor().sendSnapshotCSNInReadCommit(executionGroupContext.getInputGroups());
+        ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(GlobalLogicalTimeRule.class).getGlobalLogicalTimeEngine()
+                .getGlobalLogicalTimeExecutor().sendSnapshotCSNInReadCommit(executionGroupContext.getInputGroups());
         return jdbcExecutor.execute(executionContext.getQueryContext(), executionGroupContext, isReturnGeneratedKeys, isExceptionThrown);
     }
     

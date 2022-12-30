@@ -36,9 +36,7 @@ public final class YamlTransactionRuleConfiguration implements YamlGlobalRuleCon
     private String providerType;
     
     private Properties props;
-    
-    private boolean gltMod;
-    
+
     @Override
     public Class<TransactionRuleConfiguration> getRuleConfigurationType() {
         return TransactionRuleConfiguration.class;

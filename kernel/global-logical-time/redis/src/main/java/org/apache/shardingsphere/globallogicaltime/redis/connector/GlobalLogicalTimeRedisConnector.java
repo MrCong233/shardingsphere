@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.shardingsphere.globallogicaltime.redis.connector;
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,19 +35,19 @@ import java.util.concurrent.TimeoutException;
  */
 @Slf4j
 public class GlobalLogicalTimeRedisConnector {
-
+    
     private int lockExpirationTime;
-
+    
     private JedisPool jedisPool;
-
+    
     private static final Long RELEASE_SUCCESS = 1L;
-
+    
     private static final int TRY_LOCK_TIMEOUT_INTERVAL = 40;
-
+    
     private static final Random retryTimeIntervalRandom = new Random();
-
+    
     private final GlobalLogicalTimeRuleConfiguration configuration;
-
+    
     public GlobalLogicalTimeRedisConnector(GlobalLogicalTimeRuleConfiguration configuration) {
         this.configuration = configuration;
         boolean flag = initJedisPool();
@@ -38,7 +55,7 @@ public class GlobalLogicalTimeRedisConnector {
             log.error("create jedis pool failed, please check the configuration in 'server.yaml'.");
         }
     }
-
+    
     private boolean initJedisPool() {
         String host;
         int port;
@@ -46,7 +63,7 @@ public class GlobalLogicalTimeRedisConnector {
         int timeoutInterval;
         int maxIdle;
         int maxTotal;
-
+        
         // Load configuration of jedis pool.
         if (configuration == null || configuration.getRedisOption() == null) {
             host = GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_HOST;
@@ -57,22 +74,17 @@ public class GlobalLogicalTimeRedisConnector {
             maxTotal = GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_MAX_TOTAL;
             this.lockExpirationTime = GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_LOCK_EXPIRATION_TIME;
         } else {
-            host = configuration.getRedisOption().getHost() != null ?
-                    configuration.getRedisOption().getHost() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_HOST;
-            port = configuration.getRedisOption().getPort() != null ?
-                    Integer.parseInt(configuration.getRedisOption().getPort()) : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_PORT;
-            password = configuration.getRedisOption().getPassword() != null ?
-                    configuration.getRedisOption().getPassword() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_PASSWORD;
-            timeoutInterval = configuration.getRedisOption().getTimeoutInterval() != 0 ?
-                    configuration.getRedisOption().getTimeoutInterval() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_TIME_INTERVAL;
-            maxIdle = configuration.getRedisOption().getTimeoutInterval() != 0 ?
-                    configuration.getRedisOption().getTimeoutInterval() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_MAX_IDLE;
-            maxTotal = configuration.getRedisOption().getMaxTotal() != 0 ?
-                    configuration.getRedisOption().getMaxTotal() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_MAX_TOTAL;
-            this.lockExpirationTime = configuration.getRedisOption().getLockExpirationTime() != 0 ?
-                    configuration.getRedisOption().getMaxTotal() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_LOCK_EXPIRATION_TIME;
+            host = configuration.getRedisOption().getHost() != null ? configuration.getRedisOption().getHost() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_HOST;
+            port = configuration.getRedisOption().getPort() != null ? Integer.parseInt(configuration.getRedisOption().getPort()) : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_PORT;
+            password = configuration.getRedisOption().getPassword() != null ? configuration.getRedisOption().getPassword() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_PASSWORD;
+            timeoutInterval =
+                    configuration.getRedisOption().getTimeoutInterval() != 0 ? configuration.getRedisOption().getTimeoutInterval() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_TIME_INTERVAL;
+            maxIdle = configuration.getRedisOption().getTimeoutInterval() != 0 ? configuration.getRedisOption().getTimeoutInterval() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_MAX_IDLE;
+            maxTotal = configuration.getRedisOption().getMaxTotal() != 0 ? configuration.getRedisOption().getMaxTotal() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_MAX_TOTAL;
+            this.lockExpirationTime =
+                    configuration.getRedisOption().getLockExpirationTime() != 0 ? configuration.getRedisOption().getMaxTotal() : GlobalLogicalTimeJedisPoolConfigParams.DEFAULT_LOCK_EXPIRATION_TIME;
         }
-
+        
         // Build the jedis pool.
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxIdle(maxIdle);
@@ -85,7 +97,7 @@ public class GlobalLogicalTimeRedisConnector {
         log.info("create jedis pool, host: {}, port: {}, maxIdle: {}, maxTotal: {}, timeoutInterval: {}", host, port, maxIdle, maxTotal, timeoutInterval);
         return true;
     }
-
+    
     /**
      * Get current global csn from Redis after add 1 to the global csn in Redis.
      *
@@ -100,9 +112,9 @@ public class GlobalLogicalTimeRedisConnector {
             jedis.close();
         }
         return csn;
-
+        
     }
-
+    
     /**
      * Init global csn in redis.
      *
@@ -122,7 +134,7 @@ public class GlobalLogicalTimeRedisConnector {
             return GlobalLogicalTimeJedisPoolConfigParams.ERROR_CSN;
         }
     }
-
+    
     /**
      * Get current global csn from redis.
      *
@@ -141,11 +153,11 @@ public class GlobalLogicalTimeRedisConnector {
         }
         return csn;
     }
-
+    
     synchronized private boolean tryCSNLock(String id) {
         return tryCSNLock(id, lockExpirationTime);
     }
-
+    
     synchronized private boolean tryCSNLock(String id, int lockExpirationTime) {
         Jedis jedis = jedisPool.getResource();
         SetParams params = new SetParams();
@@ -155,13 +167,13 @@ public class GlobalLogicalTimeRedisConnector {
         jedis.close();
         return "OK".equals(back);
     }
-
+    
     private boolean isTimeout(long startTIme, long endTime) {
         final double msToS = 1000.0;
         double interval = (endTime - startTIme) / msToS;
         return !(interval < TRY_LOCK_TIMEOUT_INTERVAL);
     }
-
+    
     /**
      * Try csn lock from redis in a loop before timeout.
      *
@@ -187,16 +199,16 @@ public class GlobalLogicalTimeRedisConnector {
                     Thread.sleep(retryTimeIntervalRandom.nextInt(MAX_RETRY_TIME_INTERVAL - MIN_RETRY_TIME_INTERVAL) + MIN_RETRY_TIME_INTERVAL);
                 }
             }
-
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        
         if (!lockResult) {
             throw new TimeoutException("Get lock failed because of timeout.");
         }
     }
-
+    
     /**
      * Unlock csnLock if the held id equal to the saved id.
      *
@@ -216,7 +228,7 @@ public class GlobalLogicalTimeRedisConnector {
             return false;
         }
     }
-
+    
     /**
      * Generate a csn lock id by process id , timeMillis and random number.
      *

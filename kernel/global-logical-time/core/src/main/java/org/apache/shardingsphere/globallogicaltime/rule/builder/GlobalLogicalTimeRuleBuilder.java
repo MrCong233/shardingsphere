@@ -21,7 +21,6 @@ import org.apache.shardingsphere.globallogicaltime.config.GlobalLogicalTimeRuleC
 import org.apache.shardingsphere.globallogicaltime.constant.GlobalLogicalTimeOrder;
 import org.apache.shardingsphere.globallogicaltime.rule.GlobalLogicalTimeRule;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
-import org.apache.shardingsphere.infra.instance.InstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rule.builder.global.GlobalRuleBuilder;
 import org.apache.shardingsphere.infra.rule.identifier.scope.GlobalRule;
@@ -34,12 +33,6 @@ import java.util.Map;
 public class GlobalLogicalTimeRuleBuilder implements GlobalRuleBuilder<GlobalLogicalTimeRuleConfiguration> {
     
     @Override
-    public GlobalRule build(final GlobalLogicalTimeRuleConfiguration ruleConfig, final Map<String, ShardingSphereDatabase> databases,
-                            final InstanceContext instanceContext, final ConfigurationProperties props) {
-        return new GlobalLogicalTimeRule(ruleConfig);
-    }
-    
-    @Override
     public int getOrder() {
         return GlobalLogicalTimeOrder.ORDER;
     }
@@ -47,5 +40,10 @@ public class GlobalLogicalTimeRuleBuilder implements GlobalRuleBuilder<GlobalLog
     @Override
     public Class<GlobalLogicalTimeRuleConfiguration> getTypeClass() {
         return GlobalLogicalTimeRuleConfiguration.class;
+    }
+    
+    @Override
+    public GlobalRule build(GlobalLogicalTimeRuleConfiguration ruleConfig, Map<String, ShardingSphereDatabase> databases, ConfigurationProperties props) {
+        return new GlobalLogicalTimeRule(ruleConfig);
     }
 }
