@@ -15,27 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.infra.context.transaction;
+package org.apache.shardingsphere.globallogicaltime.rule;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.junit.Before;
+import org.junit.Test;
 
-/**
- * Transaction connection context.
- */
-@Getter
-@Setter
-public final class TransactionConnectionContext implements AutoCloseable {
+public class GlobalLogicalTimeRuleTest {
     
-    private volatile boolean inTransaction;
+    private GlobalLogicalTimeRule globalLogicalTimeRule;
     
-    private volatile long globalCSN;
-    private volatile String readWriteSplitReplicaRoute;
-    
-    @Override
-    public void close() {
-        inTransaction = false;
-        readWriteSplitReplicaRoute = null;
-        globalCSN = 0;
+    @Before
+    public void setup() {
+        // globalLogicalTimeRule = new GlobalLogicalTimeRule();
+    }
+
+    @Test
+    public void assertGetGlobalLogicalTimeEngine() {
+
+    }
+
+    @Test
+    public void assertGetType() {
+
+    }
+
+    @Test
+    public void assertFields() {
+
     }
 }

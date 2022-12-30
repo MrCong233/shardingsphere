@@ -15,27 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.infra.context.transaction;
+package org.apache.shardingsphere.globallogicaltime.rule.builder;
 
-import lombok.Getter;
-import lombok.Setter;
+import junit.framework.TestCase;
 
 /**
- * Transaction connection context.
+ * @author zhoucong
+ * @ClassName DefaultGlobalLogicalTimeRuleConfigurationBuilderTest
+ * @Description TODO
+ * @createTime 2022年12月29日17:01:00
  */
-@Getter
-@Setter
-public final class TransactionConnectionContext implements AutoCloseable {
+public class DefaultGlobalLogicalTimeRuleConfigurationBuilderTest extends TestCase {
     
-    private volatile boolean inTransaction;
+    public void testBuild() {
+    }
     
-    private volatile long globalCSN;
-    private volatile String readWriteSplitReplicaRoute;
+    public void testGetOrder() {
+    }
     
-    @Override
-    public void close() {
-        inTransaction = false;
-        readWriteSplitReplicaRoute = null;
-        globalCSN = 0;
+    public void testGetTypeClass() {
     }
 }

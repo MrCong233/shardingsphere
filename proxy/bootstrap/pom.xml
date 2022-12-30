@@ -136,6 +136,11 @@
             <artifactId>logback-classic</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opengauss</groupId>
+            <artifactId>opengauss-jdbc</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

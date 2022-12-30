@@ -191,3 +191,153 @@
 #  auditors:
 #    sharding_key_required_auditor:
 #      type: DML_SHARDING_CONDITIONS
+dataSources:
+  ds_0:
+    connectionTimeoutMilliseconds: 3600000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 410
+    minPoolSize: 400
+    password: Huawei@123
+    url: jdbc:opengauss://192.168.0.243:12150/tpccdb?serverTimezone=UTC&useSSL=false&connectTimeout=60&batchMode=on&loggerLevel=OFF
+    username: tpccuser
+  ds_1:
+    connectionTimeoutMilliseconds: 3600000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 410
+    minPoolSize: 400
+    password: Huawei@123
+    url: jdbc:opengauss://192.168.0.243:12160/tpccdb?serverTimezone=UTC&useSSL=false&connectTimeout=60&batchMode=on&loggerLevel=OFF
+    username: tpccuser
+rules:
+  - !SHARDING
+    bindingTables:
+      - bmsql_warehouse, bmsql_customer
+      - bmsql_stock, bmsql_district, bmsql_order_line
+      - cmdb_user
+    broadcastTables:
+      - bmsql_item
+    defaultDatabaseStrategy:
+      standard:
+        shardingAlgorithmName: database_inline
+        shardingColumn: ds_id
+    defaultTableStrategy:
+      none: null
+    shardingAlgorithms:
+      ds_user_alg:
+        props:
+          algorithm-expression: ds_${user_id % 2}
+        type: INLINE
+      ts_user_alg:
+        props:
+          algorithm-expression: cmdb_user_${ts_id % 2}
+        type: INLINE
+      ds_count_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${id % 2}
+      t_account_inline:
+        type: INLINE
+        props:
+          algorithm-expression: account_${transaction_id % 2}
+      t_account2_inline:
+        type: INLINE
+        props:
+          algorithm-expression: account2_${transaction_id % 2}
+      database_inline:
+        props:
+          algorithm-expression: ds_${ds_id % 1}
+        type: INLINE
+      ds_inline_mod:
+        props:
+          sharding-count: 2
+        type: MOD
+    tables:
+      cmdb_user:
+        actualDataNodes: ds_${0..1}.cmdb_user_${0..1}
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_user_alg
+            shardingColumn: user_id
+        tableStrategy:
+          standard:
+            shardingAlgorithmName: ts_user_alg
+            shardingColumn: ts_id
+      account:
+        actualDataNodes: ds_${0..1}.account_${0..1}
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_count_inline
+            shardingColumn: id
+        tableStrategy:
+          standard:
+            shardingColumn: transaction_id
+            shardingAlgorithmName: t_account_inline
+      account2:
+        actualDataNodes: ds_${0..1}.account2_${0..1}
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_count_inline
+            shardingColumn: id
+        tableStrategy:
+          standard:
+            shardingColumn: transaction_id
+            shardingAlgorithmName: t_account2_inline
+      bmsql_config:
+        actualDataNodes: ds_${0..1}.bmsql_config
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: cfg_id
+      bmsql_customer:
+        actualDataNodes: ds_${0..1}.bmsql_customer
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: c_w_id
+      bmsql_district:
+        actualDataNodes: ds_${0..1}.bmsql_district
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: d_w_id
+      bmsql_history:
+        actualDataNodes: ds_${0..1}.bmsql_history
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: h_w_id
+      bmsql_new_order:
+        actualDataNodes: ds_${0..1}.bmsql_new_order
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: no_w_id
+      bmsql_oorder:
+        actualDataNodes: ds_${0..1}.bmsql_oorder
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: o_w_id
+      bmsql_order_line:
+        actualDataNodes: ds_${0..1}.bmsql_order_line
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: ol_w_id
+      bmsql_stock:
+        actualDataNodes: ds_${0..1}.bmsql_stock
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: s_w_id
+      bmsql_warehouse:
+        actualDataNodes: ds_${0..1}.bmsql_warehouse
+        databaseStrategy:
+          standard:
+            shardingAlgorithmName: ds_inline_mod
+            shardingColumn: w_id
+      t_order:
+        actualDataNodes: ds_${0..0}.t_order
+schemaName: sharding_db
