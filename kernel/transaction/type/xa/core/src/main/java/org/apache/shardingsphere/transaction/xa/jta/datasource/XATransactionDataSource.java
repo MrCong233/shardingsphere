@@ -124,4 +124,8 @@ public final class XATransactionDataSource implements AutoCloseable {
         } catch (final ReflectiveOperationException ignored) {
         }
     }
+
+    public DataSource getDataSource() {
+        return dataSource;
+    }
 }
