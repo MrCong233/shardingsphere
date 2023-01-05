@@ -1,12 +1,14 @@
 +++
-pre = "<b>7.1. </b>"
+pre = "<b>7.3. </b>"
 title = "Management"
-weight = 1
+weight = 3
 +++
 
 ## Data Structure in Registry Center
 
-Under defined namespace, `rules`, `props` and `metadata` nodes persist in YAML, modifying nodes can dynamically refresh configurations. `nodes` node persist the runtime node of database access object, to distinguish different database access instances.
+Under defined namespace, `rules`, `props` and `metadata` nodes persist in YAML. Modifying nodes can dynamically refresh configurations. 
+`nodes` persist the runtime node of database access object, to distinguish different database access instances.
+`sys_data` persist system tables and data.
 
 ```
 namespace
@@ -19,10 +21,13 @@ namespace
    ├     ├     ├     ├     ├──tables          # Table configuration
    ├     ├     ├     ├     ├     ├──${tableName} 
    ├     ├     ├     ├     ├     ├──...  
+   ├     ├     ├     ├     ├──views          # View configuration
+   ├     ├     ├     ├     ├     ├──${viewName} 
+   ├     ├     ├     ├     ├     ├──...  
    ├     ├     ├     ├──...    
    ├     ├     ├──versions                    # Metadata version list      
    ├     ├     ├     ├──${versionNumber}      # Metadata version
-   ├     ├     ├     ├     ├──dataSources     # Data source configuration
+   ├     ├     ├     ├     ├──data_sources     # Data source configuration
    ├     ├     ├     ├     ├──rules           # Rule configuration  
    ├     ├     ├     ├──...
    ├     ├     ├──active_version              # Active metadata version
@@ -37,45 +42,45 @@ namespace
    ├    ├     ├     ├     ├──UUID             # JDBC instance identifier
    ├    ├     ├     ├     ├──....   
    ├    ├     ├──status
-   ├    ├     ├     ├──UUID
-   ├    ├     ├     ├──....
-   ├    ├     ├──xa_recovery_id
-   ├    ├     ├     ├──recovery_id
-   ├    ├     ├     ├     ├──UUID     
+   ├    ├     ├     ├──UUID                   
    ├    ├     ├     ├──....
    ├    ├     ├──worker_id
    ├    ├     ├     ├──UUID
    ├    ├     ├     ├──....
    ├    ├     ├──process_trigger
    ├    ├     ├     ├──process_list_id:UUID
-   ├    ├     ├     ├──....            
-   ├    ├──storage_nodes
-   ├    ├     ├──disable
-   ├    ├     ├      ├──${schema_1.ds_0}
-   ├    ├     ├      ├──${schema_1.ds_1}
-   ├    ├     ├      ├──....
-   ├    ├     ├──primary
-   ├    ├     ├      ├──${schema_2.ds_0}
-   ├    ├     ├      ├──${schema_2.ds_1}
-   ├    ├     ├      ├──....   
+   ├    ├     ├     ├──....
+   ├    ├     ├──labels                      
+   ├    ├     ├     ├──UUID
+   ├    ├     ├     ├──....               
+   ├    ├──storage_nodes                       
+   ├    ├     ├──${databaseName.groupName.ds} 
+   ├    ├     ├──${databaseName.groupName.ds}
+   ├──sys_data
+   ├    ├──shardingsphere
+   ├    ├     ├──schemas
+   ├    ├     ├     ├──shardingsphere
+   ├    ├     ├     ├     ├──tables             # system tables
+   ├    ├     ├     ├     ├     ├──sharding_table_statistics    # sharding statistics table
+   ├    ├     ├     ├     ├     ├     ├──8a2dcb0d97c3d86ef77b3d4651a1d7d0  # md5
+   ├    ├     ├     ├     ├     ├──cluster_information    # cluster information table
 ```
 
 ### /rules
 
-global rule configurations, including configure the username and password for ShardingSphere-Proxy.
+These are the global rule configurations, which can include transaction configuration, SQL parser configuration, etc.
 
 ```yaml
-- !AUTHORITY
-users:
-  - root@%:root
-  - sharding@127.0.0.1:sharding
-provider:
-  type: ALL_PERMITTED
+- !TRANSACTION
+  defaultType: XA
+  providerType: Atomikos
+- !SQL_PARSER
+  sqlCommentParseEnabled: true
 ```
 
 ### /props
 
-Properties configuration. Please refer to [Configuration Manual](/en/user-manual/shardingsphere-jdbc/props/) for more details.
+These are the properties configuration. Please refer to the [Configuration Manual](/en/user-manual/shardingsphere-jdbc/props/) for more details.
 
 ```yaml
 kernel-executor-size: 20
@@ -84,7 +89,7 @@ sql-show: true
 
 ### /metadata/${databaseName}/versions/${versionNumber}/dataSources
 
-A collection of multiple database connection pools, whose properties (e.g. DBCP, C3P0, Druid and HikariCP) are configured by users themselves.
+A collection of multiple database connection pools, whose properties (e.g. DBCP, C3P0, Druid and HikariCP) are configured by the users.
 
 ```yaml
 ds_0:
@@ -119,7 +124,7 @@ ds_1:
 
 ### /metadata/${databaseName}/versions/${versionNumber}/rules
 
-Rule configurations, including sharding, readwrite-splitting, data encryption, shadow DB configurations.
+Rule configurations, including sharding, read/write splitting, data encryption, and shadow DB configurations.
 
 ```yaml
 - !SHARDING
@@ -158,8 +163,10 @@ indexs:                                   # Index
 
 ### /nodes/compute_nodes
 
-It includes running instance information of database access object, with sub-nodes as the identifiers of currently running instance, which is automatically generated at each startup using UUID. Those identifiers are temporary nodes, which are registered when instances are on-line and cleared when instances are off-line. The registry center monitors the change of those nodes to govern the database access of running instances and other things.
+It includes running instance information of database access object, with sub-nodes as the identifiers of the currently running instance, which is automatically generated at each startup using UUID. 
+
+The identifiers are temporary nodes, which are registered when instances are online and cleared when instances are offline. The registry center monitors the change of those nodes to govern the database access of running instances and other things.
 
 ### /nodes/storage_nodes
 
-It is able to orchestrate replica database, delete or disable data dynamically.
+It can orchestrate replica database, and delete or disable data dynamically.

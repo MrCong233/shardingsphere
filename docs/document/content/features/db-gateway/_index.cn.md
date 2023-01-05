@@ -1,7 +1,7 @@
 +++
-pre = "<b>4.2. </b>"
+pre = "<b>3.5. </b>"
 title = "数据库网关"
-weight = 2
+weight = 5
 chapter = true
 +++
 
@@ -17,12 +17,8 @@ chapter = true
 
 ## 目标
 
-**SQL 方言的自动翻译，是 Apache ShardingSphere 数据库网关希望达成的主要目标。**
+SQL 方言的自动翻译，是 Apache ShardingSphere 数据库网关希望达成的主要目标。
 
-## 现状
+## 应用场景
 
-Apache ShardingSphere 的 SQL 方言翻译处于**实验阶段**。
-
-目前已支持 MySQL/PostgreSQL 的方言自动翻译，工程师可以使用 MySQL 的方言和协议，访问 PostgreSQL 数据库，反之亦然。
-
-**源码：https://github.com/apache/shardingsphere/tree/master/shardingsphere-kernel/shardingsphere-sql-translator**
+随着业务场景的多元化，企业内部的数据库产品也呈现多元化的趋势，业务应用与不同数据库产品的对接也变得异常复杂，ShardingSphere 数据库网关可以屏蔽业务应用与底层多元化数据库之间连接，同时为不同的业务场景提供统一的访问协议和语法体系，能够帮助企业快速打造统一的数据访问平台。

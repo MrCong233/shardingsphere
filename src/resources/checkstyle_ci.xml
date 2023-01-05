@@ -54,7 +54,7 @@
         <module name="ParameterName" />
         <module name="CatchParameterName" />
         <module name="AbbreviationAsWordInName">
-            <property name="allowedAbbreviationLength" value="6" />
+            <property name="allowedAbbreviationLength" value="8" />
         </module>
         
         <!-- Size Violations -->
@@ -112,9 +112,11 @@
         <!-- Imports -->
         <module name="AvoidStarImport" />
         <module name="AvoidStaticImport">
-            <property name="excludes" value="org.junit.Assert.*,org.hamcrest.Matchers.*,org.hamcrest.CoreMatchers.*,org.mockito.Mockito.*,org.mockito.ArgumentMatchers.*" />
+            <property name="excludes" value="org.junit.Assert.*,org.hamcrest.Matchers.*,org.hamcrest.CoreMatchers.*,org.hamcrest.MatcherAssert.*,org.mockito.Mockito.*,org.mockito.ArgumentMatchers.*" />
         </module>
-        <module name="IllegalImport" />
+        <module name="IllegalImport">
+            <property name="illegalClasses" value="org.mockito.junit.MockitoJUnitRunner.Silent" />
+        </module>
         <module name="RedundantImport" />
         <module name="UnusedImports" />
         <module name="CustomImportOrder" />
@@ -191,7 +193,7 @@
         <!-- Class Design -->
         <module name="FinalClass" />
         <!-- cannot recognize for lombok @NoArgsConstructor(access = AccessLevel.PRIVATE), just ignore -->
-        <!--<module name="HideUtilityClassConstructor"/>-->
+        <!--<module name="HideUtilityClassConstructor" />-->
         <module name="OneTopLevelClass" />
         <module name="InterfaceIsType" />
         <module name="InnerTypeLast" />
@@ -214,6 +216,12 @@
         <module name="TrailingComment" />
         <module name="UncommentedMain">
             <property name="excludedClasses" value="\.Bootstrap" />
+        </module>
+        
+        <module name="Regexp">
+            <property name="illegalPattern" value="true" />
+            <property name="format" value="MockitoJUnitRunner\.Silent" />
+            <property name="message" value="MockitoJUnitRunner.Silent is not allowed in tests" />
         </module>
         
         <!-- Javadoc Comments -->

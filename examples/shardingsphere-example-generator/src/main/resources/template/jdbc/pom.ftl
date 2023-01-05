@@ -26,20 +26,11 @@
     <name>${r'${project.artifactId}'}</name>
     
     <dependencies>
-    <#if framework=="jdbc">
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>shardingsphere-jdbc-core</artifactId>
             <version>${r'${project.version}'}</version>
         </dependency>
-    </#if>
-    <#if framework?contains("spring-namespace")>
-        <dependency>
-            <groupId>org.apache.shardingsphere</groupId>
-            <artifactId>shardingsphere-jdbc-core-spring-namespace</artifactId>
-            <version>${r'${project.version}'}</version>
-        </dependency>
-    </#if>
     <#if transaction?contains("xa")>
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
@@ -93,7 +84,7 @@
         <dependency>
             <groupId>io.seata</groupId>
             <artifactId>seata-all</artifactId>
-            <version>1.4.2</version>
+            <version>1.5.2</version>
         </dependency>
     </#if>
     <#if framework?contains("jpa")>
@@ -123,44 +114,44 @@
             <version>5.2.15.RELEASE</version>
         </dependency>
     </#if>
-    <#if framework?contains("spring-boot-starter")>
-        <dependency>
-            <groupId>org.apache.shardingsphere</groupId>
-            <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
-            <version>${r'${project.version}'}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot</artifactId>
-            <version>2.2.0.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>2.2.0.RELEASE</version>
-        </dependency>
-    </#if>
     <#if framework=="spring-boot-starter-jdbc">
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot</artifactId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
             <version>2.2.0.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>snakeyaml</artifactId>
+                    <groupId>org.yaml</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>2.2.0.RELEASE</version>
+            <artifactId>snakeyaml</artifactId>
+            <groupId>org.yaml</groupId>
+            <version>1.33</version>
         </dependency>
     <#elseif framework=="spring-boot-starter-mybatis">
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>2.1.3</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>snakeyaml</artifactId>
+                    <groupId>org.yaml</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     <#elseif framework=="spring-namespace-jdbc">
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <artifactId>spring-context-support</artifactId>
+            <version>5.2.15.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
             <version>5.2.15.RELEASE</version>
         </dependency>
     <#elseif framework=="spring-namespace-mybatis">
@@ -184,16 +175,25 @@
             <artifactId>spring-context-support</artifactId>
             <version>5.2.15.RELEASE</version>
         </dependency>
+    <#elseif framework?contains("spring-boot-starter")>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>2.2.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>2.2.0.RELEASE</version>
+        </dependency>
     </#if>
         
-    <#if feature=="encrypt">
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.20</version>
             <scope>provided</scope>
         </dependency>
-    </#if>
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
@@ -216,6 +216,33 @@
             <version>1.2.10</version>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>example-generator</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <#assign package = feature?replace('-', '')?replace(',', '.') />
+                                    <mainClass>org.apache.shardingsphere.example.${package}.${framework?replace('-', '.')}.ExampleMain</mainClass>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     
     <build>
         <plugins>
