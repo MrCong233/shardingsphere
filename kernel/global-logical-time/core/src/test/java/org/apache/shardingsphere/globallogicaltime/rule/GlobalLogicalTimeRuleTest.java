@@ -17,30 +17,69 @@
 
 package org.apache.shardingsphere.globallogicaltime.rule;
 
+import org.apache.shardingsphere.globallogicaltime.GlobalLogicalTimeEngine;
+import org.apache.shardingsphere.globallogicaltime.config.GlobalLogicalTimeRuleConfiguration;
+import org.apache.shardingsphere.globallogicaltime.config.RedisConnectionOptionConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GlobalLogicalTimeRuleTest {
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public final class GlobalLogicalTimeRuleTest {
     
     private GlobalLogicalTimeRule globalLogicalTimeRule;
     
     @Before
     public void setup() {
-        // globalLogicalTimeRule = new GlobalLogicalTimeRule();
+        globalLogicalTimeRule = mockGlobalLogicalTimeRule(new GlobalLogicalTimeRuleConfiguration(
+                true, new RedisConnectionOptionConfiguration("127.0.0.1", "6379", "", 40, 8, 18, 10)));
+    }
+
+    public  GlobalLogicalTimeRule mockGlobalLogicalTimeRule(GlobalLogicalTimeRuleConfiguration configuration) {
+        GlobalLogicalTimeEngine engine = mock(GlobalLogicalTimeEngine.class);
+        GlobalLogicalTimeRule rule = mock(GlobalLogicalTimeRule.class);
+
+        when(rule.getGlobalLogicalTimeEngine()).thenReturn(engine);
+        when(rule.isGlobalLogicalTimeEnabled()).thenReturn(configuration.isGlobalLogicalTimeEnabled());
+        when(rule.getType()).thenReturn(rule .getClass().getSimpleName());
+        when(rule.getRedisOption()).thenReturn(configuration.getRedisOption());
+        when(rule.getConfiguration()).thenReturn(configuration);
+        return rule;
     }
 
     @Test
     public void assertGetGlobalLogicalTimeEngine() {
-
+        assertNotNull(globalLogicalTimeRule.getGlobalLogicalTimeEngine());
     }
 
     @Test
     public void assertGetType() {
-
+        assertEquals(globalLogicalTimeRule.getType(), GlobalLogicalTimeRule.class.getSimpleName());
     }
 
     @Test
     public void assertFields() {
+        // "127.0.0.1", "6379", "", 40, 8, 18, 10
+        assertTrue(globalLogicalTimeRule.getConfiguration().isGlobalLogicalTimeEnabled());
+        assertEquals(globalLogicalTimeRule.getConfiguration().getRedisOption().getHost(), "127.0.0.1");
+        assertEquals(globalLogicalTimeRule.getConfiguration().getRedisOption().getPort(), "6379");
+        assertEquals(globalLogicalTimeRule.getConfiguration().getRedisOption().getPassword(), "");
+        assertEquals(globalLogicalTimeRule.getConfiguration().getRedisOption().getTimeoutInterval(), 40);
+        assertEquals(globalLogicalTimeRule.getConfiguration().getRedisOption().getMaxIdle(), 8);
+        assertEquals(globalLogicalTimeRule.getConfiguration().getRedisOption().getMaxTotal(), 18);
+        assertEquals(globalLogicalTimeRule.getConfiguration().getRedisOption().getLockExpirationTime(), 10);
+
+        assertTrue(globalLogicalTimeRule.isGlobalLogicalTimeEnabled());
+        assertEquals(globalLogicalTimeRule.getRedisOption().getHost(), "127.0.0.1");
+        assertEquals(globalLogicalTimeRule.getRedisOption().getPort(), "6379");
+        assertEquals(globalLogicalTimeRule.getRedisOption().getPassword(), "");
+        assertEquals(globalLogicalTimeRule.getRedisOption().getTimeoutInterval(), 40);
+        assertEquals(globalLogicalTimeRule.getRedisOption().getMaxIdle(), 8);
+        assertEquals(globalLogicalTimeRule.getRedisOption().getMaxTotal(), 18);
+        assertEquals(globalLogicalTimeRule.getRedisOption().getLockExpirationTime(), 10);
+
 
     }
 }

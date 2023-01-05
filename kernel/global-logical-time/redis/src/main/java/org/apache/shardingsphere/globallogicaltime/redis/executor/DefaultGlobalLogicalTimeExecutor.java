@@ -47,7 +47,7 @@ public class DefaultGlobalLogicalTimeExecutor implements GlobalLogicalTimeExecut
     }
     
     @Override
-    public void sendSnapshotCSNAfterStartTransaction(Connection connection) throws SQLException {
+    public void sendGlobalCSNAfterStartTransaction(Connection connection, TransactionConnectionContext transactionConnectionContext) throws SQLException {
         
     }
     

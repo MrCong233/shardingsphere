@@ -57,9 +57,10 @@ public interface GlobalLogicalTimeExecutor {
      * send snapshot csn to a dn after cn send "start transaction" to the dn.
      *
      * @param connection connection
+     * @param transactionConnectionContext transaction connection context
      * @throws SQLException sql exception
      */
-    void sendSnapshotCSNAfterStartTransaction(Connection connection) throws SQLException;
+    void sendGlobalCSNAfterStartTransaction(Connection connection, TransactionConnectionContext transactionConnectionContext) throws SQLException;
     
     /**
      * send snapshot csn to each dns in Read Commit isolation level.

@@ -105,9 +105,8 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
      * @throws SQLException SQL exception
      */
     @Override
-    public void sendSnapshotCSNAfterStartTransaction(Connection connection) throws SQLException {
-        // long csn = GLTCSNThreadLocal.getCSN();
-        long csn = 0;
+    public void sendGlobalCSNAfterStartTransaction(Connection connection, TransactionConnectionContext transactionConnectionContext) throws SQLException {
+        long csn = transactionConnectionContext.getGlobalCSN();
         sendSnapshotCSN(connection, csn);
     }
     

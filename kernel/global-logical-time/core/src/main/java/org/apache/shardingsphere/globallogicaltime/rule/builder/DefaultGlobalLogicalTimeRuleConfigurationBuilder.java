@@ -28,7 +28,7 @@ import org.apache.shardingsphere.infra.rule.builder.global.DefaultGlobalRuleConf
 public class DefaultGlobalLogicalTimeRuleConfigurationBuilder implements DefaultGlobalRuleConfigurationBuilder<GlobalLogicalTimeRuleConfiguration, GlobalLogicalTimeRuleBuilder> {
     
     public static final RedisConnectionOptionConfiguration REDIS_CONNECTION_OPTION = new RedisConnectionOptionConfiguration(
-            "192.168.0.243", "6379", "", 40000,
+            "127.0.0.1", "6379", "", 40000,
             8, 18, 10);
     
     @Override

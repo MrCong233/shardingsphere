@@ -69,21 +69,21 @@ public final class BackendTransactionManager implements TransactionManager {
             connection.getConnectionSession().getConnectionContext().getTransactionConnectionContext().setInTransaction(true);
             connection.closeHandlers(true);
             connection.closeConnections(false);
-            globalLogicalTimeExecutor.getGlobalCSNWhenBeginTransaction(connection.getConnectionSession().getConnectionContext().getTransactionConnectionContext());
         }
         if (TransactionType.LOCAL == transactionType || null == shardingSphereTransactionManager) {
             localTransactionManager.begin();
         } else {
             shardingSphereTransactionManager.begin();
         }
+        globalLogicalTimeExecutor.getGlobalCSNWhenBeginTransaction(connection.getConnectionSession().getConnectionContext().getTransactionConnectionContext());
     }
     
     @Override
     public void commit() throws SQLException {
         String csnLockId = "";
+        csnLockId = globalLogicalTimeExecutor.beforeCommit(connection.getCachedConnections().values());
         if (connection.getConnectionSession().getTransactionStatus().isInTransaction()) {
             try {
-                csnLockId = globalLogicalTimeExecutor.beforeCommit(connection.getCachedConnections().values());
                 if (TransactionType.LOCAL == transactionType || null == shardingSphereTransactionManager) {
                     localTransactionManager.commit();
                 } else {

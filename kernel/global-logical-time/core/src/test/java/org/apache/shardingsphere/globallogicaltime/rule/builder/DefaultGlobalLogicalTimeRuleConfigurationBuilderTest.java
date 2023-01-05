@@ -17,22 +17,35 @@
 
 package org.apache.shardingsphere.globallogicaltime.rule.builder;
 
-import junit.framework.TestCase;
+import org.apache.shardingsphere.globallogicaltime.config.GlobalLogicalTimeRuleConfiguration;
+import org.apache.shardingsphere.globallogicaltime.constant.GlobalLogicalTimeOrder;
+import org.junit.Test;
 
-/**
- * @author zhoucong
- * @ClassName DefaultGlobalLogicalTimeRuleConfigurationBuilderTest
- * @Description TODO
- * @createTime 2022年12月29日17:01:00
- */
-public class DefaultGlobalLogicalTimeRuleConfigurationBuilderTest extends TestCase {
-    
-    public void testBuild() {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+public class DefaultGlobalLogicalTimeRuleConfigurationBuilderTest {
+
+    @Test
+    public void assertBuild() {
+        GlobalLogicalTimeRuleConfiguration actual = new DefaultGlobalLogicalTimeRuleConfigurationBuilder().build();
+        assertFalse(actual.isGlobalLogicalTimeEnabled());
+        assertEquals(actual.getRedisOption().getHost(), "127.0.0.1");
+        assertEquals(actual.getRedisOption().getPort(), "6379");
+        assertEquals(actual.getRedisOption().getPassword(), "");
+        assertEquals(actual.getRedisOption().getTimeoutInterval(), 40000);
+        assertEquals(actual.getRedisOption().getMaxIdle(), 8);
+        assertEquals(actual.getRedisOption().getMaxTotal(), 18);
+        assertEquals(actual.getRedisOption().getLockExpirationTime(), 10);
     }
-    
-    public void testGetOrder() {
+
+    @Test
+    public void assertGetOrder() {
+        assertEquals(new DefaultGlobalLogicalTimeRuleConfigurationBuilder().getOrder(), GlobalLogicalTimeOrder.ORDER);
     }
-    
-    public void testGetTypeClass() {
+
+    @Test
+    public void assertGetTypeClass() {
+        assertEquals(new DefaultGlobalLogicalTimeRuleConfigurationBuilder().getTypeClass(), GlobalLogicalTimeRuleBuilder.class);
     }
 }

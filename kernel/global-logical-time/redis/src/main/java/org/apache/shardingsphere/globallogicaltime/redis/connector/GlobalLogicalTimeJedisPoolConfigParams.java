@@ -26,6 +26,10 @@ public class GlobalLogicalTimeJedisPoolConfigParams {
     public static String CSN_KEY = "csn";
     
     public static String CSN_LOCK_NAME = "csnLock";
+
+    public static String TEST_KEY = "test_key";
+
+    public static String TEST_VALUE = "test_value";
     
     /* init csn when redis server doesn't store csnKey */
     public static long INIT_CSN = 40000;
