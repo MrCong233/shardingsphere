@@ -22,6 +22,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.globallogicaltime.rule.GlobalLogicalTimeRule;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.ConnectionMode;
 import org.apache.shardingsphere.infra.executor.sql.prepare.driver.jdbc.ExecutorJDBCConnectionManager;
 import org.apache.shardingsphere.proxy.backend.communication.jdbc.connection.ConnectionPostProcessor;
@@ -86,6 +87,13 @@ public final class BackendConnection implements ExecutorJDBCConnectionManager {
             }
         } else {
             result = createNewConnections(dataSourceName, connectionSize, connectionMode);
+            if (connectionSession.getTransactionStatus().isInTransaction()) {
+                for (Connection each : result) {
+                    ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData().
+                            getSingleRule(GlobalLogicalTimeRule.class).getGlobalLogicalTimeEngine().getGlobalLogicalTimeExecutor().
+                            sendGlobalCSNAfterStartTransaction(each, connectionSession.getConnectionContext().getTransactionConnectionContext());
+                }
+            }
             synchronized (cachedConnections) {
                 cachedConnections.putAll(connectionSession.getDatabaseName().toLowerCase() + "." + dataSourceName, result);
             }
@@ -94,7 +102,8 @@ public final class BackendConnection implements ExecutorJDBCConnectionManager {
     }
     
     private List<Connection> createNewConnections(final String dataSourceName, final int connectionSize, final ConnectionMode connectionMode) throws SQLException {
-        List<Connection> result = ProxyContext.getInstance().getBackendDataSource().getConnections(connectionSession.getDatabaseName().toLowerCase(), dataSourceName, connectionSize, connectionMode);
+        List<Connection> result = ProxyContext.getInstance().getBackendDataSource().getConnections(connectionSession.getDatabaseName().toLowerCase(), dataSourceName, connectionSize, connectionMode,
+                connectionSession.getConnectionContext().getTransactionConnectionContext());
         setSessionVariablesIfNecessary(result);
         for (Connection each : result) {
             replayTransactionOption(each);

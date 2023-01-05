@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.transaction.spi;
 
+import org.apache.shardingsphere.infra.context.transaction.TransactionConnectionContext;
 import org.apache.shardingsphere.infra.database.type.DatabaseType;
 import org.apache.shardingsphere.transaction.api.TransactionType;
 
