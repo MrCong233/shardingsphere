@@ -37,7 +37,7 @@ public interface GlobalLogicalTimeExecutor {
      * @return csnLockId csn lock id
      * @throws SQLException sql exception
      */
-    String beforeCommit(final Collection<Connection> connectionList) throws SQLException;
+    String beforeCommit(Collection<Connection> connectionList) throws SQLException;
     
     /**
      * xa transaction commit completed.

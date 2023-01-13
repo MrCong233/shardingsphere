@@ -37,19 +37,19 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 public class GlobalLogicalTimeRedisConnector {
     
-    private int lockExpirationTime;
-    
-    private JedisPool jedisPool;
-    
     private static final Long RELEASE_SUCCESS = 1L;
     
     private static final int TRY_LOCK_TIMEOUT_INTERVAL = 40;
     
-    private static final Random retryTimeIntervalRandom = new Random();
+    private static final Random RETRY_TIME_INTERVAL_RANDOM = new Random();
+    
+    private int lockExpirationTime;
+    
+    private JedisPool jedisPool;
     
     private final GlobalLogicalTimeRuleConfiguration configuration;
     
-    public GlobalLogicalTimeRedisConnector(GlobalLogicalTimeRuleConfiguration configuration) {
+    public GlobalLogicalTimeRedisConnector(final GlobalLogicalTimeRuleConfiguration configuration) {
         this.configuration = configuration;
         initJedisPool();
     }
@@ -87,7 +87,7 @@ public class GlobalLogicalTimeRedisConnector {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxIdle(maxIdle);
         config.setMaxTotal(maxTotal);
-        if (password.equals("")) {
+        if ("".equals(password)) {
             jedisPool = new JedisPool(config, host, port, timeoutInterval);
         } else {
             jedisPool = new JedisPool(config, host, port, timeoutInterval, password);
@@ -100,10 +100,10 @@ public class GlobalLogicalTimeRedisConnector {
             return false;
         }
     }
-
+    
     private boolean checkJedisPool() throws JedisConnectionException {
-        String setResult = "";
-        long deleteResult = 0;
+        String setResult;
+        long deleteResult;
         try (Jedis jedis = jedisPool.getResource()) {
             setResult = jedis.set(GlobalLogicalTimeJedisPoolConfigParams.TEST_KEY, GlobalLogicalTimeJedisPoolConfigParams.TEST_VALUE);
             deleteResult = jedis.del(GlobalLogicalTimeJedisPoolConfigParams.TEST_KEY);
@@ -112,19 +112,16 @@ public class GlobalLogicalTimeRedisConnector {
             e.printStackTrace();
             throw e;
         }
-        if (setResult.equals("OK") && deleteResult == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return "OK".equals(setResult) && deleteResult == 1;
     }
     
     /**
      * Get current global csn from Redis after add 1 to the global csn in Redis.
      *
      * @return the global csn after add 1
+     * @throws JedisConnectionException jedis connection exception
      */
-    synchronized public long getNextCSN() throws JedisConnectionException {
+    public synchronized long getNextCSN() throws JedisConnectionException {
         Jedis jedis = jedisPool.getResource();
         long csn;
         try {
@@ -140,8 +137,9 @@ public class GlobalLogicalTimeRedisConnector {
      * Init global csn in redis.
      *
      * @return initialized global csn
+     * @throws JedisConnectionException request to redis failed
      */
-    synchronized public long initCSN() throws JedisConnectionException {
+    public synchronized long initCSN() throws JedisConnectionException {
         Jedis jedis = jedisPool.getResource();
         String result;
         try {
@@ -149,7 +147,7 @@ public class GlobalLogicalTimeRedisConnector {
         } finally {
             jedis.close();
         }
-        if (result.equals("OK")) {
+        if ("OK".equals(result)) {
             return GlobalLogicalTimeJedisPoolConfigParams.INIT_CSN;
         } else {
             return GlobalLogicalTimeJedisPoolConfigParams.ERROR_CSN;
@@ -160,6 +158,7 @@ public class GlobalLogicalTimeRedisConnector {
      * Get current global csn from redis.
      *
      * @return current global csn
+     * @throws JedisConnectionException request to redis failed
      */
     public long getCurrentCSN() throws JedisConnectionException {
         Jedis jedis = jedisPool.getResource();
@@ -175,11 +174,11 @@ public class GlobalLogicalTimeRedisConnector {
         return csn;
     }
     
-    synchronized private boolean tryCSNLock(String id) {
+    private synchronized boolean tryCSNLock(final String id) {
         return tryCSNLock(id, lockExpirationTime);
     }
     
-    synchronized private boolean tryCSNLock(String id, int lockExpirationTime) throws JedisConnectionException {
+    private synchronized boolean tryCSNLock(final String id, final int lockExpirationTime) throws JedisConnectionException {
         Jedis jedis = jedisPool.getResource();
         SetParams params = new SetParams();
         params.ex(lockExpirationTime);
@@ -189,7 +188,7 @@ public class GlobalLogicalTimeRedisConnector {
         return "OK".equals(back);
     }
     
-    private boolean isTimeout(long startTIme, long endTime) {
+    private boolean isTimeout(final long startTIme, final long endTime) {
         final double msToS = 1000.0;
         double interval = (endTime - startTIme) / msToS;
         return !(interval < TRY_LOCK_TIMEOUT_INTERVAL);
@@ -198,12 +197,13 @@ public class GlobalLogicalTimeRedisConnector {
     /**
      * Try csn lock from redis in a loop before timeout.
      *
-     * @param  id cskLock id
+     * @param id cskLock id
      * @throws TimeoutException trying csn lock timeout
+     * @throws JedisConnectionException request to redis failed
      */
-    public void lockCSN(String id) throws TimeoutException, JedisConnectionException {
-        final int MIN_RETRY_TIME_INTERVAL = 50;
-        final int MAX_RETRY_TIME_INTERVAL = 100;
+    public void lockCSN(final String id) throws TimeoutException, JedisConnectionException {
+        int minRetryTimeInterval = 50;
+        int maxRetryTimeInterval = 100;
         boolean lockResult = false;
         try {
             long startTime = System.currentTimeMillis();
@@ -217,11 +217,11 @@ public class GlobalLogicalTimeRedisConnector {
                     log.debug("get csn lock successfully, id : {}", id);
                     break;
                 } else {
-                    Thread.sleep(retryTimeIntervalRandom.nextInt(MAX_RETRY_TIME_INTERVAL - MIN_RETRY_TIME_INTERVAL) + MIN_RETRY_TIME_INTERVAL);
+                    Thread.sleep(RETRY_TIME_INTERVAL_RANDOM.nextInt(maxRetryTimeInterval - minRetryTimeInterval) + minRetryTimeInterval);
                 }
             }
             
-        } catch (Exception e) {
+        } catch (JedisConnectionException | InterruptedException e) {
             e.printStackTrace();
         }
         
@@ -235,8 +235,9 @@ public class GlobalLogicalTimeRedisConnector {
      *
      * @param id csn lock id
      * @return if csn lock is unlocked successfully
+     * @throws JedisConnectionException request to redis failed
      */
-    public synchronized boolean unLockCSN(String id) throws JedisConnectionException {
+    public synchronized boolean unLockCSN(final String id) throws JedisConnectionException {
         Jedis jedis = jedisPool.getResource();
         String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
         Object result = jedis.eval(script, Collections.singletonList(GlobalLogicalTimeJedisPoolConfigParams.CSN_LOCK_NAME), Collections.singletonList(id));

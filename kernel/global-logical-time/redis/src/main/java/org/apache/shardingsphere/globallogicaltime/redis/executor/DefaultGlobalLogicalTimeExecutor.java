@@ -27,32 +27,32 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 /**
- * Default global logical time executor, which is turned off by default
+ * Default global logical time executor, which is turned off by default.
  */
 public class DefaultGlobalLogicalTimeExecutor implements GlobalLogicalTimeExecutor {
     
     @Override
-    public String beforeCommit(Collection<Connection> connectionList) throws SQLException {
+    public String beforeCommit(final Collection<Connection> connectionList) throws SQLException {
         return null;
     }
     
     @Override
-    public void afterCommit(String csnLockId) {
+    public void afterCommit(final String csnLockId) {
         
     }
     
     @Override
-    public void getGlobalCSNWhenBeginTransaction(TransactionConnectionContext transactionConnectionContext) {
+    public void getGlobalCSNWhenBeginTransaction(final TransactionConnectionContext transactionConnectionContext) {
         
     }
     
     @Override
-    public void sendGlobalCSNAfterStartTransaction(Connection connection, TransactionConnectionContext transactionConnectionContext) throws SQLException {
+    public void sendGlobalCSNAfterStartTransaction(final Connection connection, final TransactionConnectionContext transactionConnectionContext) throws SQLException {
         
     }
     
     @Override
-    public void sendSnapshotCSNInReadCommit(Collection<ExecutionGroup<JDBCExecutionUnit>> inputGroups) throws SQLException {
+    public void sendSnapshotCSNInReadCommit(final Collection<ExecutionGroup<JDBCExecutionUnit>> inputGroups) throws SQLException {
         
     }
 }

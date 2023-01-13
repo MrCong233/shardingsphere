@@ -89,9 +89,9 @@ public final class BackendConnection implements ExecutorJDBCConnectionManager {
             result = createNewConnections(dataSourceName, connectionSize, connectionMode);
             if (connectionSession.getTransactionStatus().isInTransaction()) {
                 for (Connection each : result) {
-                    ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData().
-                            getSingleRule(GlobalLogicalTimeRule.class).getGlobalLogicalTimeEngine().getGlobalLogicalTimeExecutor().
-                            sendGlobalCSNAfterStartTransaction(each, connectionSession.getConnectionContext().getTransactionConnectionContext());
+                    ProxyContext.getInstance().getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData()
+                            .getSingleRule(GlobalLogicalTimeRule.class).getGlobalLogicalTimeEngine().getGlobalLogicalTimeExecutor()
+                            .sendGlobalCSNAfterStartTransaction(each, connectionSession.getConnectionContext().getTransactionConnectionContext());
                 }
             }
             synchronized (cachedConnections) {
@@ -102,8 +102,7 @@ public final class BackendConnection implements ExecutorJDBCConnectionManager {
     }
     
     private List<Connection> createNewConnections(final String dataSourceName, final int connectionSize, final ConnectionMode connectionMode) throws SQLException {
-        List<Connection> result = ProxyContext.getInstance().getBackendDataSource().getConnections(connectionSession.getDatabaseName().toLowerCase(), dataSourceName, connectionSize, connectionMode,
-                connectionSession.getConnectionContext().getTransactionConnectionContext());
+        List<Connection> result = ProxyContext.getInstance().getBackendDataSource().getConnections(connectionSession.getDatabaseName().toLowerCase(), dataSourceName, connectionSize, connectionMode);
         setSessionVariablesIfNecessary(result);
         for (Connection each : result) {
             replayTransactionOption(each);

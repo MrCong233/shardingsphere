@@ -43,7 +43,7 @@ public class GlobalLogicalTimeRuleBuilder implements GlobalRuleBuilder<GlobalLog
     }
     
     @Override
-    public GlobalRule build(GlobalLogicalTimeRuleConfiguration ruleConfig, Map<String, ShardingSphereDatabase> databases, ConfigurationProperties props) {
+    public GlobalRule build(final GlobalLogicalTimeRuleConfiguration ruleConfig, final Map<String, ShardingSphereDatabase> databases, final ConfigurationProperties props) {
         return new GlobalLogicalTimeRule(ruleConfig);
     }
 }

@@ -41,11 +41,11 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
     
     private GlobalLogicalTimeRedisConnector redisConnector;
     
-    public BasedRedisGlobalLogicalTimeExecutor(GlobalLogicalTimeRuleConfiguration configuration) {
+    public BasedRedisGlobalLogicalTimeExecutor(final GlobalLogicalTimeRuleConfiguration configuration) {
         init(configuration);
     }
     
-    private void init(GlobalLogicalTimeRuleConfiguration configuration) {
+    private void init(final GlobalLogicalTimeRuleConfiguration configuration) {
         redisConnector = new GlobalLogicalTimeRedisConnector(configuration);
     }
     
@@ -57,7 +57,7 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
      * @throws SQLException SQL exception
      */
     @Override
-    public String beforeCommit(Collection<Connection> connectionList) throws SQLException {
+    public String beforeCommit(final Collection<Connection> connectionList) throws SQLException {
         // Try csn lock before transaction starts to commit.
         String csnLockId = GlobalLogicalTimeRedisConnector.tryCSNLockId();
         try {
@@ -68,8 +68,8 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
         
         // Set commit csn to each dns.
         String order = "SELECT " + redisConnector.getCurrentCSN() + " AS SETCOMMITCSN;";
-        for (Connection CSNConnection : connectionList) {
-            try (Statement statement = CSNConnection.createStatement()) {
+        for (Connection connection : connectionList) {
+            try (Statement statement = connection.createStatement()) {
                 log.debug(order);
                 statement.execute(order);
             } catch (SQLException e) {
@@ -87,13 +87,13 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
      * @param csnLockId csn lock id
      */
     @Override
-    public void afterCommit(String csnLockId) {
+    public void afterCommit(final String csnLockId) {
         redisConnector.getNextCSN();
         redisConnector.unLockCSN(csnLockId);
     }
     
     @Override
-    public void getGlobalCSNWhenBeginTransaction(TransactionConnectionContext transactionConnectionContext) {
+    public void getGlobalCSNWhenBeginTransaction(final TransactionConnectionContext transactionConnectionContext) {
         long csn = redisConnector.getCurrentCSN();
         transactionConnectionContext.setGlobalCSN(csn);
     }
@@ -105,7 +105,7 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
      * @throws SQLException SQL exception
      */
     @Override
-    public void sendGlobalCSNAfterStartTransaction(Connection connection, TransactionConnectionContext transactionConnectionContext) throws SQLException {
+    public void sendGlobalCSNAfterStartTransaction(final Connection connection, final TransactionConnectionContext transactionConnectionContext) throws SQLException {
         long csn = transactionConnectionContext.getGlobalCSN();
         sendSnapshotCSN(connection, csn);
     }
@@ -117,7 +117,7 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
      * @throws SQLException SQL Exception
      */
     @Override
-    public void sendSnapshotCSNInReadCommit(Collection<ExecutionGroup<JDBCExecutionUnit>> inputGroups) throws SQLException {
+    public void sendSnapshotCSNInReadCommit(final Collection<ExecutionGroup<JDBCExecutionUnit>> inputGroups) throws SQLException {
         List<Connection> connections = new ArrayList<>();
         for (ExecutionGroup<JDBCExecutionUnit> entry : inputGroups) {
             List<JDBCExecutionUnit> inputs = entry.getInputs();
@@ -127,7 +127,8 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
             }
         }
         if (!connections.isEmpty()) {
-            boolean inTransaction = !connections.get(0).getAutoCommit(); // By default, shardingsphere transaction is read-commit level.
+            // By default, shardingsphere transaction is read-commit level.
+            boolean inTransaction = !connections.get(0).getAutoCommit();
             // By default, transactions' isolation are read-commit.
             if (inTransaction) {
                 long csn = redisConnector.getCurrentCSN();
@@ -138,7 +139,7 @@ public class BasedRedisGlobalLogicalTimeExecutor implements GlobalLogicalTimeExe
         }
     }
     
-    private void sendSnapshotCSN(Connection connection, long csn) throws SQLException {
+    private void sendSnapshotCSN(final Connection connection, final long csn) throws SQLException {
         String order = "SELECT " + csn + " AS SETSNAPSHOTCSN;";
         try (Statement statement = connection.createStatement()) {
             log.debug(order);

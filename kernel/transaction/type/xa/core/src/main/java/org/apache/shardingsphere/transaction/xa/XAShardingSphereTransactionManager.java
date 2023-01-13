@@ -144,8 +144,4 @@ public final class XAShardingSphereTransactionManager implements ShardingSphereT
     public boolean containsProviderType(final String providerType) {
         return TypedSPIRegistry.findRegisteredService(XATransactionManagerProvider.class, providerType).isPresent();
     }
-    
-    public Map<String, XATransactionDataSource> getCachedDataSources() {
-        return cachedDataSources;
-    }
 }

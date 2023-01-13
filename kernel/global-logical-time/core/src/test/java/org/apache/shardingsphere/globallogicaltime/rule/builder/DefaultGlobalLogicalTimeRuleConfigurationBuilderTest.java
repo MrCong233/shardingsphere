@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class DefaultGlobalLogicalTimeRuleConfigurationBuilderTest {
-
+    
     @Test
     public void assertBuild() {
         GlobalLogicalTimeRuleConfiguration actual = new DefaultGlobalLogicalTimeRuleConfigurationBuilder().build();
@@ -38,12 +38,12 @@ public class DefaultGlobalLogicalTimeRuleConfigurationBuilderTest {
         assertEquals(actual.getRedisOption().getMaxTotal(), 18);
         assertEquals(actual.getRedisOption().getLockExpirationTime(), 10);
     }
-
+    
     @Test
     public void assertGetOrder() {
         assertEquals(new DefaultGlobalLogicalTimeRuleConfigurationBuilder().getOrder(), GlobalLogicalTimeOrder.ORDER);
     }
-
+    
     @Test
     public void assertGetTypeClass() {
         assertEquals(new DefaultGlobalLogicalTimeRuleConfigurationBuilder().getTypeClass(), GlobalLogicalTimeRuleBuilder.class);

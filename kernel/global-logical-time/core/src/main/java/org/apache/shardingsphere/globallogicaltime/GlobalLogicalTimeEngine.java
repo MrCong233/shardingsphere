@@ -31,7 +31,7 @@ public class GlobalLogicalTimeEngine {
     
     private final GlobalLogicalTimeExecutor globalLogicalTimeExecutor;
     
-    public GlobalLogicalTimeEngine(GlobalLogicalTimeRuleConfiguration configuration) {
+    public GlobalLogicalTimeEngine(final GlobalLogicalTimeRuleConfiguration configuration) {
         if (configuration.isGlobalLogicalTimeEnabled()) {
             globalLogicalTimeExecutor = new BasedRedisGlobalLogicalTimeExecutor(configuration);
         } else {

@@ -15,30 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.transaction.yaml.config;
+package org.apache.shardingsphere.globallogicaltime.redis.executor;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlGlobalRuleConfiguration;
-import org.apache.shardingsphere.transaction.config.TransactionRuleConfiguration;
+import org.junit.Test;
 
-import java.util.Properties;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
-/**
- * Transaction rule configuration for YAML.
- */
-@Getter
-@Setter
-public final class YamlTransactionRuleConfiguration implements YamlGlobalRuleConfiguration {
+import static org.junit.Assert.assertNull;
+
+public final class DefaultGlobalLogicalTimeExecutorTest {
     
-    private String defaultType;
-    
-    private String providerType;
-    
-    private Properties props;
-    
-    @Override
-    public Class<TransactionRuleConfiguration> getRuleConfigurationType() {
-        return TransactionRuleConfiguration.class;
+    @Test
+    public void assertBeforeCommit() throws SQLException {
+        Collection<Connection> connectionList = new ArrayList<>();
+        assertNull(new DefaultGlobalLogicalTimeExecutor().beforeCommit(connectionList));
     }
 }
