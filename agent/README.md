@@ -57,9 +57,9 @@ java -javaagent:/xx/xx/shardingsphere-agent-{latest.release.version}.jar -jar pr
 * `lib` contains dependencies common to plugins.
 * `plugins` contains all plugins.
 
-### Extend via SPI PluginBootService
+### Extend via SPI PluginLifecycleService
 
-`PluginBootService` is the plugin service definition interface, used to start the plugin service.
+`PluginLifecycleService` is the plugin service definition interface, used to start the plugin service.
 Custom plugins need to implement this interface.
 
 ### Configure advisors.yaml
@@ -68,14 +68,14 @@ Custom plugins need to implement this interface.
 
 ```yaml
 advisors:
-  - target: org.apache.shardingsphere.mode.metadata.MetaDataContextsFactory # class that need interception enhancements
-    advice: org.apache.shardingsphere.agent.plugin.metrics.core.advice.MetaDataContextsFactoryAdvice # enhanced class
+  - target: xxx.TargetClass # class that need interception enhancements
+    advice: xxx.XXXAdvice # enhanced class
     pointcuts: # intercept methods
-      - name: create # method name
+      - name: foo # method name
         type: method # intercept type. configuring "method" when intercepting the method, configuring "constructor" when intercepting the constructor
         params: # method parameters, just satisfy the unique identification method
-          - index: 3 # parameter index
-            type: java.util.Map # parameter type
+          - index: 0 # parameter index
+            type: java.lang.String # parameter type
 ```
 
 The file location is as follows:
@@ -89,8 +89,8 @@ The file location is as follows:
 
 ```yaml
 metrics:
-  - id: proxy_request_total # metric id
+  - id: xxx_id # metric id
     type: COUNTER # metric type, COUNTER、GAUGE、HISTOGRAM、SUMMARY
-    name: proxy_request_total # metric name
-    help: the shardingsphere proxy request total # metric help
+    name: xxx_name # metric name
+    help: xxx help # metric help
 ```
